@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>상품 목록</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/item/list.css}">
+        <link rel="stylesheet" th:href="@{/css/layout/item-common.css}">
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content" class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0" th:text="|상품 목록 (${categoryName})|">상품 목록</h1>
+        <a sec:authorize="isAuthenticated()" th:if="${user.warningCount < 2}"
+           th:href="@{/items/create(categoryId=${currentCategoryId})}"
+           class="btn btn-primary">새 상품 등록</a>
+        <button th:if="${user.warningCount >= 2}" onclick="alert('경고 2회 누적으로 인해 게시글 작성이 제한되었습니다.')" class="btn btn-secondary" disabled>
+            글쓰기 (제한됨)
+        </button>
+
+    </div>
+
+    <div class="category-filter-wrapper mb-4 overflow-auto pb-2">
+        <div class="mb-4" style="max-width: 200px;">
+            <select class="form-select border-secondary-subtle"
+                    onchange="location = this.value;">
+                <option th:value="@{/items/list(searchType=${param.searchType}, kw=${param.kw}, status=${param.status})}"
+                        th:selected="${currentCategoryId == null}">전체 카테고리</option>
+
+                <option th:each="cat : ${categories}"
+                        th:value="@{/items/list/{id}(id=${cat.id}, searchType=${param.searchType}, kw=${param.kw}, status=${param.status})}"
+                        th:selected="${currentCategoryId == cat.id}"
+                        th:text="${cat.name}">카테고리명</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="search-wrapper mb-4">
+        <form th:action="${currentCategoryId != null} ? @{/items/list/{id}(id=${currentCategoryId})} : @{/items/list}" method="get">
+            <input type="hidden" name="status" th:value="${param.status != null ? param.status : 'ON_SALE'}">
+
+            <div class="input-group">
+                <select name="searchType" class="form-select border-secondary-subtle" style="max-width: 130px;">
+                    <option value="title" th:selected="${param.searchType == 'title' or param.searchType == null}">제목</option>
+                    <option value="titleAndContent" th:selected="${param.searchType == 'titleAndContent'}">제목 + 내용</option>
+                    <option value="nickname" th:selected="${param.searchType == 'nickname'}">닉네임</option>
+                </select>
+
+                <input type="text" name="kw" class="form-control border-secondary-subtle"
+                       placeholder="어떤 상품을 찾으시나요?" th:value="${param.kw}">
+
+                <button class="btn btn-outline-secondary px-4" type="submit">
+                    <i class="bi bi-search"></i> 검색
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="d-flex align-items-center gap-3 mb-4 p-2 bg-light rounded">
+        <small class="text-muted fw-bold ps-2">정렬</small>
+        <div class="nav nav-pills gap-1">
+            <!-- 최신순 (기본값) -->
+            <a th:href="${currentCategoryId != null} ?
+                    @{/items/list/{id}(id=${currentCategoryId}, searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort='latest')} :
+                    @{/items/list(searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort='latest')}"
+               class="nav-link btn-sm py-1 px-3"
+               th:classappend="${param.sort == null or param.sort == 'latest' or param.sort == ''} ? 'active'">최신순</a>
+
+            <!-- 인기순(조회수) -->
+            <a th:href="${currentCategoryId != null} ?
+                    @{/items/list/{id}(id=${currentCategoryId}, searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort='views')} :
+                    @{/items/list(searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort='views')}"
+               class="nav-link btn-sm py-1 px-3"
+               th:classappend="${param.sort == 'views'} ? 'active'">인기순</a>
+
+            <!-- 낮은 가격순 -->
+            <a th:href="${currentCategoryId != null} ?
+                    @{/items/list/{id}(id=${currentCategoryId}, searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort='priceAsc')} :
+                    @{/items/list(searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort='priceAsc')}"
+               class="nav-link btn-sm py-1 px-3"
+               th:classappend="${param.sort == 'priceAsc'} ? 'active'">낮은 가격순</a>
+
+            <!-- 높은 가격순 -->
+            <a th:href="${currentCategoryId != null} ?
+                    @{/items/list/{id}(id=${currentCategoryId}, searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort='priceDesc')} :
+                    @{/items/list(searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort='priceDesc')}"
+               class="nav-link btn-sm py-1 px-3"
+               th:classappend="${param.sort == 'priceDesc'} ? 'active'">높은 가격순</a>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-x-3 g-y-3">
+        <div class="col" th:each="item : ${items}">
+            <a th:href="@{/items/detail/{id}(id=${item.id})}" class="text-decoration-none text-dark">
+                <div class="card h-100 item-card border-0 shadow-sm soft-card">
+
+                    <div class="card-img-wrapper position-relative">
+                        <img th:src="${item.imageUrl}" class="card-img-top-abs" alt="상품이미지">
+                    </div>
+
+                    <div class="card-body p-3">
+                        <h5 class="card-title text-ellipsis mb-1" th:text="${item.title}">상품 제목</h5>
+
+                        <p class="card-text price-text mb-1"
+                           th:text="|${#numbers.formatInteger(item.price, 0, 'COMMA')}원|">0원</p>
+
+                        <div class="d-flex justify-content-between align-items-center mt-2" style="font-size: 0.85rem;">
+                            <span class="text-muted text-ellipsis" style="max-width: 100px;" th:text="${item.sellerNickname}">작성자</span>
+
+                            <div class="d-flex align-items-center gap-1 text-muted flex-shrink-0">
+                                <span class="text-black-50" style="font-size: 0.75rem;">·</span>
+
+                                <span><i class="bi bi-eye"></i> [[${item.views}]]</span>
+
+                                <span class="text-black-50" style="font-size: 0.75rem;">·</span>
+
+                                <span class="item-date" th:data-date="${item.createdAt}">시간 계산중...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${items.totalPages > 1}" class="d-flex justify-content-center mt-5">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <!-- 이전 페이지 버튼 -->
+                <li class="page-item" th:classappend="${items.first} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="${currentCategoryId != null} ?
+                        @{|/items/list/${currentCategoryId}|(page=${items.number - 1}, searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort=${#strings.isEmpty(param.sort) ? 'latest' : param.sort})} :
+                        @{|/items/list|(page=${items.number - 1}, searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort=${#strings.isEmpty(param.sort) ? 'latest' : param.sort})}"
+                       aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <!-- 페이지 번호 목록 (현재 페이지 기준 앞뒤 2개씩 표시) -->
+                <li th:each="pageIdx : ${#numbers.sequence(0, items.totalPages - 1)}"
+                    th:if="${pageIdx >= items.number - 2 and pageIdx <= items.number + 2}"
+                    class="page-item" th:classappend="${pageIdx == items.number} ? 'active'">
+                    <a class="page-link"
+                       th:href="${currentCategoryId != null} ?
+                        @{|/items/list/${currentCategoryId}|(page=${pageIdx}, searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort=${#strings.isEmpty(param.sort) ? 'latest' : param.sort})} :
+                        @{|/items/list|(page=${pageIdx}, searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort=${#strings.isEmpty(param.sort) ? 'latest' : param.sort})}"
+                       th:text="${pageIdx + 1}">1</a>
+                </li>
+
+                <!-- 다음 페이지 버튼 -->
+                <li class="page-item" th:classappend="${items.last} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="${currentCategoryId != null} ?
+                        @{|/items/list/${currentCategoryId}|(page=${items.number + 1}, searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort=${#strings.isEmpty(param.sort) ? 'latest' : param.sort})} :
+                        @{|/items/list|(page=${pageIdx}, searchType=${param.searchType}, kw=${param.kw}, status=${param.status}, sort=${#strings.isEmpty(param.sort) ? 'latest' : param.sort})}"
+                       aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/ko.js"></script>
+    <script>
+        dayjs.extend(dayjs_plugin_relativeTime);
+        dayjs.locale('ko');
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll('.item-date').forEach(function (el) {
+                let rawDate = el.getAttribute('data-date');
+
+                if (rawDate && rawDate !== '') {
+                    // "2026-07-22 13:00" -> "2026-07-22T13:00"
+                    let isoDate = rawDate.replace(' ', 'T');
+
+                    // 타임존 보정
+                    if (!isoDate.endsWith('Z') && !isoDate.includes('+')) {
+                        isoDate += '+09:00';
+                    }
+
+                    const relativeTime = dayjs(isoDate).fromNow();
+
+                    if (relativeTime !== 'Invalid Date') {
+                        el.innerText = relativeTime;
+                    } else {
+                        el.innerText = rawDate;
+                    }
+                } else {
+                    el.innerText = '-';
+                }
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>

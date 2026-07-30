@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>따뜻한 거래 후기 남기기</title>
+</head>
+<body>
+<div layout:fragment="content" class="container my-5" style="max-width: 600px;">
+    <div class="card shadow-sm border-0 p-4">
+        <h4 class="fw-bold text-center mb-4">🤝 거래는 어떠셨나요?</h4>
+        <form id="reviewForm">
+            <input type="hidden" id="itemId" th:value="${itemId}">
+
+            <div class="mb-4 text-center">
+                <label class="form-label d-block fw-bold text-secondary mb-2">매너 점수를 선택해주세요</label>
+                <div class="btn-group" role="group" aria-label="Rating Tool">
+                    <input type="radio" class="btn-check" name="rating" id="rate1" value="1" required>
+                    <label class="btn btn-outline-warning" for="rate1">⭐ 1</label>
+                    <input type="radio" class="btn-check" name="rating" id="rate2" value="2">
+                    <label class="btn btn-outline-warning" for="rate2">⭐ 2</label>
+                    <input type="radio" class="btn-check" name="rating" id="rate3" value="3" checked>
+                    <label class="btn btn-outline-warning" for="rate3">⭐ 3</label>
+                    <input type="radio" class="btn-check" name="rating" id="rate4" value="4">
+                    <label class="btn btn-outline-warning" for="rate4">⭐ 4</label>
+                    <input type="radio" class="btn-check" name="rating" id="rate5" value="5">
+                    <label class="btn btn-outline-warning" for="rate5">⭐ 5</label>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="content" class="form-label fw-bold text-secondary">따뜻한 후기를 적어주세요</label>
+                <textarea class="form-control" id="content" rows="5" placeholder="전달하고 싶은 감사 인사나 거래 팁을 적어주세요." required></textarea>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary fw-bold py-2">후기 등록 완료</button>
+                <a href="/users/mypage" class="btn btn-light py-2">나중에 하기</a>
+            </div>
+        </form>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script src="/js/reivew/write.js"></script>
+    </th:block>
+</div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>👑 어드민 - 신고 관리 센터</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/layout/item-common.css}">
+        <link rel="stylesheet" type="text/css" href="/css/admin/common.css">
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content" class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div th:replace="~{layout/admin-sidebar :: sidebar}"></div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <div>
+                    <h1 class="h3 mb-1 text-dark fw-bold"><i class="bi bi-shield-fill-exclamation text-danger"></i> 신고 접수 및 처리 센터</h1>
+                    <small class="text-muted">유저들이 건전한 플랫폼 조성을 위해 접수한 신고 내역을 검토하고 제재하는 구역입니다.</small>
+                </div>
+            </div>
+
+            <div class="nav nav-tabs mb-4">
+                <li class="nav-item">
+                    <a th:href="@{/admin/reports(status='PENDING')}"
+                       class="nav-link fw-bold px-4"
+                       th:classappend="${currentStatus.name() == 'PENDING'} ? 'active text-danger' : 'text-secondary'">
+                        ⏳ 처리 대기 목록 <span class="badge bg-danger ms-1" th:if="${currentStatus.name() == 'PENDING'}" th:text="${reports.totalElements}">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a th:href="@{/admin/reports(status='PROCESSED')}"
+                       class="nav-link fw-bold px-4"
+                       th:classappend="${currentStatus.name() == 'PROCESSED'} ? 'active text-success' : 'text-secondary'">
+                        ✅ 처리 완료 아카이브
+                    </a>
+                </li>
+            </div>
+
+            <div class="table-responsive shadow-sm rounded border bg-white">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                    <tr>
+                        <th style="width: 7%;">신고 번호</th>
+                        <th style="width: 13%;">신고 종류</th>
+                        <th style="width: 30%;">신고 대상 게시글</th>
+                        <th style="width: 15%;">피신고자(판매자)</th>
+                        <th style="width: 15%;">신고자</th>
+                        <th style="width: 12%;">접수 일시</th>
+                        <th style="width: 8%;">상태</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(reports.content)}">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-check-circle fs-1 d-block mb-2 text-success"></i>
+                            <span>깨끗합니다! 현재 검토할 신고 내역이 없습니다.</span>
+                        </td>
+                    </tr>
+
+                    <tr th:each="report : ${reports.content}">
+                        <td th:text="${report.id}" class="text-secondary fw-bold">1</td>
+                        <td>
+                            <span class="badge p-2 w-100"
+                                  th:classappend="${report.reportType.name() == 'SCAM' ? 'bg-danger' :
+                                                  report.reportType.name() == 'SPAM' ? 'bg-warning text-dark' :
+                                                  report.reportType.name() == 'PROHIBITED_ITEM' ? 'bg-dark' : 'bg-secondary'}"
+                                  th:text="${report.reportTypeDescription}">사유</span>
+                        </td>
+                        <td>
+                            <a th:href="@{|/admin/reports/detail/${report.id}|}"
+                               class="text-decoration-none fw-semibold text-dark text-truncate d-block"
+                               style="max-width: 350px;" th:text="${report.targetItemTitle}">신고 상품명</a>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold text-dark" th:text="${report.sellerNickname}">판매자닉네임</span>
+                                <small class="text-muted font-monospace" th:text="|(${report.sellerUsername})|">(id)</small>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-secondary fw-medium" th:text="${report.reporterNickname}">신고자닉네임</span>
+                        </td>
+                        <td>
+                            <small class="text-muted" th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}">일시</small>
+                        </td>
+                        <td>
+                            <span class="badge" th:classappend="${report.status.name() == 'PENDING' ? 'bg-outline-danger border border-danger text-danger' : 'bg-success'}"
+                                  th:text="${report.status.name() == 'PENDING' ? '대기중' : '완료'}">상태</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${reports.totalPages > 1}" class="d-flex justify-content-center mt-5">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item" th:classappend="${reports.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/reports(page=${reports.number - 1}, status=${currentStatus})}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li th:each="pageIdx : ${#numbers.sequence(0, reports.totalPages - 1)}"
+                            th:if="${pageIdx >= reports.number - 2 and pageIdx <= reports.number + 2}"
+                            class="page-item" th:classappend="${pageIdx == reports.number} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/reports(page=${pageIdx}, status=${currentStatus})}" th:text="${pageIdx + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${reports.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/reports(page=${reports.number + 1}, status=${currentStatus})}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

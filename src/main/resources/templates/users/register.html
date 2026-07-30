@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>회원가입</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" type="text/css" href="/css/users/user-common.css">
+        <link rel="stylesheet" type="text/css" href="/css/users/register.css">
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content" class="container my-5">
+
+    <div class="auth-card">
+        <h3 class="register-title">회원가입</h3>
+
+        <form onsubmit="return false;">
+
+            <div id="error-container" class="alert alert-danger d-none" role="alert">
+                <ul id="error-messages" class="mb-0">
+                </ul>
+            </div>
+
+            <div class="form-group text-center mb-4">
+                <div class="profile-upload-wrapper" id="profileUploadTrigger" style="cursor: pointer;">
+                    <img id="profilePreview" src="/images/default-profile.png" alt="프로필 미리보기"
+                         style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
+
+                    <div class="upload-hint" style="font-size: 0.85rem; color: #6c757d; margin-top: 8px;">
+                        프로필 이미지 선택 (클릭)<br>
+                        <span style="font-size: 0.75rem; color: #b5b5b5;">* 미등록 시 기본 이미지로 설정됩니다.</span>
+                    </div>
+                </div>
+                <input type="file" id="profileImage" name="profileImage" accept="image/*" onchange="previewImage(this)" style="display: none;">
+            </div>
+
+            <div class="form-group">
+                <div class="input-with-button">
+                    <input type="text" id="username" name="username" placeholder="아이디(영문 또는 숫자 6 ~ 15글자)" class="auth-input">
+                    <button type="button" class="checkIdBtn" id="duplicateCheckUsernameButton">중복 확인</button>
+                    <button type="button" class="changeBtn" id="changeUsernameButton" style="display:none;">변경</button>
+                </div>
+                <div class="msg-error" id="username-error"></div>
+            </div>
+
+            <div class="form-group">
+                <input type="password" id="passwordInput" name="password" placeholder="비밀번호(영문+숫자 포함 8 ~ 16글자)" class="auth-input">
+                <div class="msg-error" id="passwordInput-error"></div>
+            </div>
+
+            <div class="form-group">
+                <input type="password" id="passwordConfirm" name="password2" placeholder="비밀번호 확인" class="auth-input">
+                <div class="msg-error" id="passwordConfirm-error"></div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-with-button">
+                    <input type="text" id="nickname" name="nickname" placeholder="닉네임" class="auth-input">
+                    <button type="button" id="duplicateCheckNicknameButton" class="checkIdBtn">중복 확인</button>
+                    <button type="button" id="changeNicknameButton" class="changeBtn" style="display:none;">변경</button>
+                </div>
+                <div class="msg-error" id="nickname-error"></div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-with-button">
+                    <input type="email" id="email" class="auth-input" placeholder="이메일">
+                    <button type="button" id="duplicateCheckEmailButton" class="checkIdBtn">인증번호 전송</button>
+                    <button type="button" id="changeEmailButton" class="changeBtn" style="display:none;">변경</button>
+                </div>
+                <div id="email-error" class="msg-error"></div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-with-button">
+                    <input type="text" id="inputCode" class="auth-input" placeholder="인증번호">
+                    <button type="button" id="duplicateCheckInputCodeButton" class="checkIdBtn">인증확인</button>
+                </div>
+                <div id="inputCode-error" class="msg-error"></div>
+            </div>
+
+            <button type="button" id="submitRegisterButton" class="btn btn-primary w-100 mt-3">
+                회원가입
+            </button>
+        </form>
+
+    </div>
+
+    <th:block layout:fragment="script">
+        <script src="/js/users/register.js"></script>
+    </th:block>
+
+</div>
+
+</body>
+</html>

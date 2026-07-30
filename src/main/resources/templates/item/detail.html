@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="${item.title}"> 상세 보기 </title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/item/detail.css}">
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content" class="container my-5">
+
+    <input type="hidden" id="itemId" th:value="${item.id}">
+
+    <div class="row g-5">
+        <div class="col-md-6">
+            <div th:if="${#lists.isEmpty(item.itemImageList)}"
+                 class="item-image-placeholder mb-3 d-flex align-items-center justify-content-center border rounded bg-light"
+                 style="height: 400px;">
+                <div class="text-muted text-center">
+                    <i class="bi bi-image fs-1 d-block mb-2"></i>
+                    <span>등록된 상품 이미지가 없습니다.</span>
+                </div>
+            </div>
+
+            <div th:if="${!#lists.isEmpty(item.itemImageList)}" id="itemImageCarousel" class="carousel slide mb-3 border rounded shadow-sm overflow-hidden" data-bs-ride="carousel">
+                <div class="carousel-indicators" th:if="${#lists.size(item.itemImageList) > 1}">
+                    <button th:each="img, stat : ${item.itemImageList}" type="button" data-bs-target="#itemImageCarousel"
+                            th:data-bs-slide-to="${stat.index}" th:classappend="${stat.first} ? 'active'"
+                            th:aria-current="${stat.first} ? 'true' : 'false'"></button>
+                </div>
+
+                <div class="carousel-inner" style="height: 400px; background-color: #000;">
+                    <div th:each="img, stat : ${item.itemImageList}" class="carousel-item h-100" th:classappend="${stat.first} ? 'active'">
+                        <img th:src="${img.url}" class="d-block w-100 h-100" style="object-fit: contain; background-color: #f8f9fa;" alt="상품상세이미지">
+                    </div>
+                </div>
+
+                <th:block th:if="${#lists.isEmpty(item.itemImageList)}">
+                    <button class="carousel-control-prev" type="button" data-bs-target="#itemImageCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#itemImageCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </th:block>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="item-info-header">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <span class="badge bg-primary" th:text="${item.categoryName}">카테고리</span>
+                        <small class="text-muted ms-2" th:text="${item.createdAt}">2026-04-07 17:04</small>
+                        <small class="text-muted" th:if="${item.createdAt != item.updatedAt && item.updatedAt != '-'}">(수정됨)</small>
+                    </div>
+                    <div class="text-muted small">
+                        <i class="bi bi-eye"></i> <span th:text="${item.views}">0</span>
+                    </div>
+                </div>
+
+                <div class="mb-3" style="max-width: 150px;">
+                    <th:block th:if="${item.isOwner}">
+                        <select id="statusSelect" class="form-select form-select-sm fw-bold border-2"
+                                th:classappend="${item.itemStatus.name() == 'ON_SALE'} ? 'border-primary text-primary' : (${item.itemStatus.name() == 'RESERVED'} ? 'border-warning text-warning' : 'border-secondary text-secondary')">
+                            <option value="ON_SALE" th:selected="${item.itemStatus.name() == 'ON_SALE'}">판매중</option>
+                            <option value="RESERVED" th:selected="${item.itemStatus.name() == 'RESERVED'}">예약중</option>
+                            <option value="SOLD_OUT" th:selected="${item.itemStatus.name() == 'SOLD_OUT'}">판매완료</option>
+                        </select>
+                    </th:block>
+
+                    <th:block th:if="${!item.isOwner}">
+                        <span class="badge p-2 fs-6"
+                              th:classappend="${item.itemStatus.name() == 'ON_SALE'} ? 'bg-primary' : (${item.itemStatus.name() == 'RESERVED'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                              th:text="${item.itemStatus.name() == 'ON_SALE'} ? '판매중' : (${item.itemStatus.name() == 'RESERVED'} ? '예약중' : '판매완료')">판매중</span>
+                    </th:block>
+                </div>
+
+                <h1 class="display-6 fw-bold" th:text="${item.title}">상품 제목</h1>
+                <h2 class="text-danger fw-bold mt-3" th:text="|${#numbers.formatInteger(item.price, 0, 'COMMA')}원|">0원</h2>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mb-4 p-3 border rounded shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <img th:src="${item.sellerProfileUrl != null ? item.sellerProfileUrl : '/images/default-profile.png'}"
+                             class="rounded-circle border"
+                             style="width: 50px; height: 50px; object-fit: cover;"
+                             alt="판매자">
+                    </div>
+
+                    <div class="ms-3 dropdown">
+                        <h5 class="mb-0 fw-bold dropdown-toggle text-dark"
+                            id="sellerMenuButton"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            style="cursor: pointer; user-select: none;"
+                            th:text="${item.sellerDisplayName}">
+                            판매자 닉네임
+                        </h5>
+                        <small class="text-muted d-block" style="margin-top: 2px;">인증된 판매자 (클릭 시 메뉴 열림)</small>
+
+                        <ul class="dropdown-menu shadow border-0 mt-2" aria-labelledby="sellerMenuButton">
+                            <li>
+                                <a class="dropdown-menu-item dropdown-item py-2 fw-medium"
+                                   th:href="@{/items/list(searchType='seller', keyword=${item.sellerDisplayName})}">
+                                    <i class="bi bi-box-seam me-2 text-primary"></i> 판매자 상품 목록 보기
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <a class="dropdown-menu-item dropdown-item py-2 fw-medium"
+                                   th:href="@{|/reviews/seller/${item.sellerId}|}">
+                                    <i class="bi bi-chat-square-heart me-2 text-success"></i> 판매자 거래 후기 보기
+                                </a>
+                            </li>
+
+                            <th:block sec:authorize="hasRole('ADMIN')">
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li>
+                                    <a class="dropdown-menu-item dropdown-item py-2 fw-bold text-danger"
+                                       th:href="@{|/admin/users/detail/${item.sellerId}|}" target="_blank">
+                                        <i class="bi bi-shield-lock-fill me-2"></i> [어드민] 회원 제재 관리실 가기 ➔
+                                    </a>
+                                </li>
+                            </th:block>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button id="likeBtn"
+                            class="btn d-flex align-items-center gap-1 fw-bold px-3"
+                            th:classappend="${item.isLiked} ? 'btn-danger text-white' : 'btn-outline-danger'"
+                            th:disabled="${item.isOwner}"
+                            th:title="${item.isOwner ? '본인 상품은 찜할 수 없습니다.' : '관심상품 등록'}">
+
+                        <i id="likeIcon" class="bi" th:classappend="${item.isLiked} ? 'bi-heart-fill' : 'bi-heart'"></i>
+                        <span id="likeCountText" th:text="${item.likeCount}">0</span>
+                    </button>
+
+                    <button id="chat_create"
+                            class="btn btn-success px-4 fw-bold"
+                            th:data-item-id="${item.id}"
+                            th:data-seller-id="${item.sellerId}">채팅하기</button>
+                </div>
+            </div>
+
+            <div class="item-content mb-5" style="min-height: 200px; white-space: pre-wrap; font-size: 1.1rem;">
+                <p th:text="${item.content}">상품의 상세 설명...</p>
+            </div>
+
+            <!-- 하단 버튼 영역 -->
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+                <a th:href="@{/items/list/{id}(id=${item.categoryId})}" class="btn btn-outline-dark px-4">목록으로</a>
+
+                <!-- 1. 본인 게시글인 경우 (수정/삭제) -->
+                <th:block th:if="${item.isOwner}">
+                    <a th:href="@{/items/edit/{id}(id=${item.id})}" class="btn btn-outline-primary px-4">수정하기</a>
+                    <button id="deleteBtn" class="btn btn-outline-danger px-4">삭제하기</button>
+                </th:block>
+
+                <!-- 2. 타인 게시글인 경우 (일반유저: 신고하기 / 어드민: 직권 제재 2종) -->
+                <th:block th:if="${!item.isOwner}">
+                    <!-- 일반 사용자용 신고 버튼 -->
+                    <button type="button" class="btn btn-outline-secondary px-3 ms-auto" data-bs-toggle="modal" data-bs-target="#reportModal">
+                        <i class="bi bi-flag-fill text-danger me-1"></i>신고하기
+                    </button>
+
+                    <!-- [어드민 전용] 모니터링 직권 제재 버튼 구역 -->
+                    <div class="ms-2 d-flex gap-2" sec:authorize="hasRole('ADMIN')">
+                        <!-- 액션 1: 경고 1회 부여 + 글 숨김 -->
+                        <form th:action="@{|/admin/items/${item.id}/warn-seller|}" method="post"
+                              onsubmit="return confirm('⚠️ [직권 경고] 작성자에게 경고 1회를 부여하고 이 게시글을 즉시 숨김 처리하시겠습니까?');">
+                            <button type="submit" class="btn btn-warning text-dark fw-bold px-3">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> 경고1회 + 글숨김
+                            </button>
+                        </form>
+
+                        <!-- 액션 2: 즉시 블랙 처리 + 글 숨김 -->
+                        <form th:action="@{|/admin/items/${item.id}/black-seller|}" method="post"
+                              onsubmit="return confirm('🚨 [즉시 영구정지] 작성자를 즉시 블랙(로그인 차단) 상태로 변경하고 이 게시글을 즉시 숨김 처리하시겠습니까?');">
+                            <button type="submit" class="btn btn-danger fw-bold px-3">
+                                <i class="bi bi-person-x-fill me-1"></i> 즉시 블랙 + 글숨김
+                            </button>
+                        </form>
+                    </div>
+                </th:block>
+            </div>
+
+            <!-- 신고 모달 -->
+            <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header bg-light">
+                            <h5 class="modal-title fw-bold text-dark" id="reportModalLabel">📌 게시글 신고하기</h5>
+                            <button type="button" class="btn-close" data-bs-shadow="none" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="reportForm">
+                            <div class="modal-body p-4">
+                                <p class="small text-muted mb-3">해당 게시글이 중고거래 운영 정책에 위배된다면 사유를 선택해 주세요.</p>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-secondary">신고 종류</label>
+                                    <select class="form-select" id="reportType" required>
+                                        <option value="" disabled selected>--- 사유를 선택하세요 ---</option>
+                                        <option value="SPAM">광고성 게시글 (홍보, 도배 등)</option>
+                                        <option value="SCAM">사기 의심 (예약금 먹튀, 위조품 등)</option>
+                                        <option value="BAD_MANNERS">욕설 및 비매너</option>
+                                        <option value="PROHIBITED_ITEM">판매 금지 물품 등록</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-0">
+                                    <label class="form-label fw-bold small text-secondary">상세 사유</label>
+                                    <textarea class="form-control" id="reportContent" rows="4" placeholder="구체적인 정황을 적어주시면 신속한 처리에 도움이 됩니다." required></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-light border-top-0">
+                                <button type="button" class="btn btn-sm btn-secondary px-3" data-bs-dismiss="modal">취소</button>
+                                <button type="submit" class="btn btn-sm btn-danger px-3 fw-bold">신고 접수</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 구매자 선택 모달 -->
+            <div class="modal fade" id="buyerSelectModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="buyerSelectModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-sm">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header bg-light">
+                            <h5 class="modal-title fw-bold text-dark" id="buyerSelectModalLabel"> 구매자 선택</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="buyerModalCloseBtn"></button>
+                        </div>
+                        <div class="modal-body p-3">
+                            <p class="small text-muted mb-3">거래를 완료할 구매자를 선택해 주세요. 선택한 구매자와의 거래 후기 페이지로 연결됩니다.</p>
+                            <div id="buyerListContainer" class="d-grid gap-2" style="max-height: 250px; overflow-y: auto;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script src="/js/item/detail.js"></script>
+    </th:block>
+</div>
+</body>
+</html>

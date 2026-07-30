@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>마이페이지</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/users/mypage.css}">
+        <link rel="stylesheet" th:href="@{/css/layout/item-common.css}">
+    </th:block>
+</head>
+<body>
+<div layout:fragment="content" class="container mypage-container">
+
+    <div class="card shadow-sm p-4 mb-5 bg-white rounded border-0">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="profile-icon-wrapper">
+                    <img th:src="${myPageData.userInfo.profileUrl != null ? myPageData.userInfo.profileUrl : '/images/default-profile.png'}"
+                         alt="프로필" class="rounded-circle border shadow-sm" style="width: 65px; height: 65px; object-fit: cover;">
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-0" th:text="${myPageData.userInfo.nickname} + '님의 마이페이지'">닉네임님의 마이페이지</h4>
+                    <small class="text-muted" th:text="${myPageData.userInfo.email}">user@example.com</small>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-sm-12">
+                    <div class="info-item-box d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted d-block">가입일</small>
+                            <span class="fw-medium" th:text="${#temporals.format(myPageData.userInfo.createdAt, 'yyyy-MM-dd')}">2026-03-31</span>
+                        </div>
+                        <span class="badge rounded-pill bg-light text-dark border">정회원</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2" th:with="isSocial=${myPageData.userInfo.providers != null && !#strings.isEmpty(myPageData.userInfo.providers)}">
+                <a th:href="@{/users/update}" class="btn btn-primary btn-sm px-4">정보 수정</a>
+
+                <a th:if="${!isSocial}" th:href="@{/users/update/password}" class="btn btn-outline-secondary btn-sm px-4">비밀번호 변경</a>
+
+                <a th:if="${!isSocial}" th:href="@{/users/withdraw/confirm}" class="btn btn-link btn-sm text-danger ms-auto text-decoration-none">회원 탈퇴</a>
+
+                <button th:if="${isSocial}" id="withdrawBtn"
+                        data-is-social="true" class="btn btn-link btn-sm text-danger ms-auto text-decoration-none">회원 탈퇴</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 bg-white rounded">
+        <div class="card-header bg-white pt-3 px-4 border-bottom-0">
+            <ul class="nav nav-pills" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="item-tab" data-bs-toggle="tab" data-bs-target="#item-pane" type="button" role="tab">내 판매글</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="like-tab" data-bs-toggle="tab" data-bs-target="#like-pane" type="button" role="tab">내 찜 목록</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="buy-tab" data-bs-toggle="tab" data-bs-target="#buy-pane" type="button" role="tab">구매 채팅</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="sell-tab" data-bs-toggle="tab" data-bs-target="#sell-pane" type="button" role="tab">판매 채팅</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="written-review-tab" data-bs-toggle="tab" data-bs-target="#written-review-pane" type="button" role="tab">내가 쓴 후기</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="received-review-tab" data-bs-toggle="tab" data-bs-target="#received-review-pane" type="button" role="tab">내가 받은 후기</button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body p-4 tab-content" id="myTabContent">
+
+            <div class="tab-pane fade show active" id="item-pane" role="tabpanel" tabindex="0">
+                <div class="row row-cols-1 row-cols-md-2 g-3" th:if="${!myPageData.sellingPosts.isEmpty()}">
+                    <div class="col" th:each="item : ${myPageData.sellingPosts.content}">
+                        <a th:href="@{/items/detail/{id}(id=${item.id})}" class="text-decoration-none text-dark">
+                            <div class="card h-100 border shadow-sm rounded p-2 flex-row align-items-center">
+                                <img th:src="${item.imageUrl}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;" alt="상품 이미지">
+                                <div class="ms-3 overflow-hidden">
+                                    <h6 class="card-title text-truncate mb-1 fw-bold" th:text="${item.title}">상품 제목</h6>
+                                    <p class="card-text text-primary fw-bold mb-1" th:text="|${#numbers.formatInteger(item.price, 0, 'COMMA')}원|">0원</p>
+                                    <small class="text-muted" th:text="${item.createdAt}">2026-07-22</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="text-center mt-4" th:if="${!myPageData.sellingPosts.isEmpty()}">
+                    <a th:href="@{/items/my-list}" class="btn btn-outline-secondary btn-sm px-5 rounded-pill">내 판매글 전체보기 <i class="bi bi-chevron-right ms-1"></i></a>
+                </div>
+                <div th:if="${myPageData.sellingPosts.isEmpty()}" class="py-5 text-center text-muted">등록된 상품이 없습니다.</div>
+            </div>
+
+            <div class="tab-pane fade" id="like-pane" role="tabpanel" tabindex="0">
+                <div class="row row-cols-1 row-cols-md-2 g-3" th:if="${!myPageData.likedPosts.isEmpty()}">
+                    <div class="col" th:each="item : ${myPageData.likedPosts.content}">
+                        <a th:href="@{/items/detail/{id}(id=${item.id})}" class="text-decoration-none text-dark">
+                            <div class="card h-100 border shadow-sm rounded p-2 flex-row align-items-center">
+                                <img th:src="${item.imageUrl}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;" alt="상품 이미지">
+                                <div class="ms-3 overflow-hidden">
+                                    <h6 class="card-title text-truncate mb-1 fw-bold" th:text="${item.title}">상품 제목</h6>
+                                    <p class="card-text text-primary fw-bold mb-1" th:text="|${#numbers.formatInteger(item.price, 0, 'COMMA')}원|">0원</p>
+                                    <small class="text-muted" th:text="|판매자: ${item.sellerNickname}|">판매자</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="text-center mt-4" th:if="${!myPageData.likedPosts.isEmpty()}">
+                    <a th:href="@{/items/my-like-list}" class="btn btn-outline-secondary btn-sm px-5 rounded-pill">내 찜 목록 전체보기 <i class="bi bi-chevron-right ms-1"></i></a>
+                </div>
+                <div th:if="${myPageData.likedPosts.isEmpty()}" class="py-5 text-center text-muted">
+                    <i class="bi bi-heartbreak fs-2 d-block mb-2"></i>
+                    <span>찜한 상품이 없습니다. 마음에 드는 상품을 찜해보세요!</span>
+                </div>
+            </div>
+
+
+            <div class="tab-pane fade" id="buy-pane" role="tabpanel" tabindex="0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold">구매 협의 중 <span class="badge bg-secondary ms-1" th:text="${myPageData.buyChatRooms.totalElements}">0</span></h6>
+                    <button class="btn btn-link btn-sm text-muted text-decoration-none p-0" onclick="location.reload()">목록 갱신 <i class="bi bi-arrow-clockwise"></i></button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light text-center">
+                        <tr>
+                            <th class="text-start">상품명</th>
+                            <th>판매자</th>
+                            <th>채팅/후기 관리</th>
+                        </tr>
+                        </thead>
+                        <tbody class="text-center">
+                        <tr th:each="chat : ${myPageData.buyChatRooms.content}">
+                            <td class="text-start text-truncate fw-medium" style="max-width: 250px;" th:text="${chat.itemTitle}">상품 제목</td>
+                            <td th:text="${chat.partnerNickname}">판매자닉네임</td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a th:href="@{|/chat/room/${chat.roomId}|}" class="btn btn-sm btn-primary px-3">입장</a>
+                                    <a th:if="${chat.toString().contains('itemStatus') && chat.itemStatus == 'COMPLETED'}"
+                                       th:href="@{|/reviews/write?itemId=${chat.itemId}|}"
+                                       class="btn btn-sm btn-outline-success">후기 남기기</a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${myPageData.buyChatRooms.isEmpty()}">
+                            <td colspan="3" class="py-5 text-muted">진행 중인 구매 채팅이 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3" th:if="${!myPageData.buyChatRooms.isEmpty()}">
+                    <a th:href="@{/users/mypage/chats(role='BUYER')}" class="btn btn-outline-secondary btn-sm px-5 rounded-pill">내 구매채팅 전체보기 <i class="bi bi-chevron-right ms-1"></i></a>
+                </div>
+            </div>
+
+
+            <div class="tab-pane fade" id="sell-pane" role="tabpanel" tabindex="0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold">판매 협의 중 <span class="badge bg-secondary ms-1" th:text="${myPageData.sellChatRooms.totalElements}">0</span></h6>
+                    <button class="btn btn-link btn-sm text-muted text-decoration-none p-0" onclick="location.reload()">목록 갱신 <i class="bi bi-arrow-clockwise"></i></button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light text-center">
+                        <tr>
+                            <th class="text-start">상품명</th>
+                            <th>구매자</th>
+                            <th>채팅</th>
+                        </tr>
+                        </thead>
+                        <tbody class="text-center">
+                        <tr th:each="chat : ${myPageData.sellChatRooms.content}">
+                            <td class="text-start text-truncate fw-medium" style="max-width: 250px;" th:text="${chat.itemTitle}">상품 제목</td>
+                            <td th:text="${chat.partnerNickname}">구매자닉네임</td>
+                            <td><a th:href="@{|/chat/room/${chat.roomId}|}" class="btn btn-sm btn-primary px-3">입장</a></td>
+                        </tr>
+                        <tr th:if="${myPageData.sellChatRooms.isEmpty()}">
+                            <td colspan="3" class="py-5 text-muted">진행 중인 판매 채팅이 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3" th:if="${!myPageData.sellChatRooms.isEmpty()}">
+                    <a th:href="@{/users/mypage/chats(role='SELLER')}" class="btn btn-outline-secondary btn-sm px-5 rounded-pill">내 판매채팅 전체보기 <i class="bi bi-chevron-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="written-review-pane" role="tabpanel" tabindex="0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold">내가 작성한 거래 후기 <span class="badge bg-secondary ms-1" th:text="${myPageData.writtenReviews.totalElements}">0</span></h6>
+                </div>
+                <div class="list-group gap-3" th:if="${!myPageData.writtenReviews.isEmpty()}">
+                    <div class="list-group-item rounded border shadow-sm p-3 bg-white" th:each="review : ${myPageData.writtenReviews.content}">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="text-warning fw-bold" th:text="${'⭐'.repeat(review.rating)}">⭐⭐⭐</span>
+                                <small class="badge bg-light text-dark border ms-2" th:text="|거래 상품: ${review.itemTitle}|">상품명</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <small class="text-muted" th:text="${#temporals.format(review.createdAt, 'yy-MM-dd')}">26-05-29</small>
+                                <a th:href="@{|/reviews/edit/${review.id}|}" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 0.75rem;">수정</a>
+                                <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 delete-review-btn" th:data-review-id="${review.id}" style="font-size: 0.75rem;">삭제</button>
+                            </div>
+                        </div>
+                        <p class="mb-0 text-secondary small" style="white-space: pre-wrap;" th:text="${review.content}">후기 내용...</p>
+                    </div>
+                </div>
+                <div th:if="${myPageData.writtenReviews.isEmpty()}" class="py-5 text-center text-muted">작성한 거래 후기가 없습니다.</div>
+            </div>
+
+            <div class="tab-pane fade" id="received-review-pane" role="tabpanel" tabindex="0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold">따뜻한 거래 칭찬 피드 <span class="badge bg-success ms-1" th:text="${myPageData.receivedReviews.totalElements}">0</span></h6>
+                </div>
+                <div class="list-group gap-3" th:if="${!myPageData.receivedReviews.isEmpty()}">
+                    <div class="list-group-item rounded border shadow-sm p-3 bg-light" th:each="review : ${myPageData.receivedReviews.content}">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center">
+                                <img th:src="${review.writerProfileUrl != null ? review.writerProfileUrl : '/images/default-profile.png'}"
+                                     class="rounded-circle border me-2" style="width: 30px; height: 30px; object-fit: cover;">
+                                <span class="fw-bold small me-2" th:text="${review.writerNickname}">구매자 닉네임</span>
+                                <span class="text-warning small" th:text="${'⭐'.repeat(review.rating)}">⭐⭐⭐</span>
+                            </div>
+                            <small class="text-muted" th:text="${#temporals.format(review.createdAt, 'yy-MM-dd')}">26-05-29</small>
+                        </div>
+                        <p class="mb-1 text-secondary small" style="white-space: pre-wrap;" th:text="${review.content}">감사 후기 내용...</p>
+                        <small class="text-muted" style="font-size: 0.75rem;" th:text="|거래 물품: ${review.itemTitle}|">상품명</small>
+                    </div>
+                </div>
+                <div th:if="${myPageData.receivedReviews.isEmpty()}" class="py-5 text-center text-muted">아직 받은 거래 후기가 없습니다. 첫 후기를 기다려보세요!</div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+    <script src="/js/users/my_page.js"></script>
+</th:block>
+</body>
+</html>

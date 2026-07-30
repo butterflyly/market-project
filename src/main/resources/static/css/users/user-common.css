@@ -1,0 +1,50 @@
+/* 카드 레이아웃 (가입, 로그인, 수정 공통) */
+.auth-card {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 35px 40px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+/* 입력창 공통 */
+.auth-input {
+    width: 100%;
+    height: 44px;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* 버튼 옆 입력창 (중복확인, 인증번호 등) */
+.input-with-button {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+}
+
+.input-with-button input { flex: 1; min-width: 0; }
+.input-with-button button { white-space: nowrap; flex-shrink: 0; }
+
+/* 상태 메시지 */
+.msg-error {
+color: #dc3545;
+ font-size: 13px;
+ margin-top: 5px;
+ }
+
+
+ .btn-primary {
+     padding: 12px;
+     font-weight: bold;
+ }
+
+.msg-success { color: #28a745; font-size: 13px; margin-top: 5px; }
+.input-error-border { border-color: #dc3545; }

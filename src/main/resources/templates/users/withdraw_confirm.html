@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>회원 탈퇴</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" type="text/css" href="/css/users/user-common.css">
+    </th:block>
+</head>
+
+<div layout:fragment="content" class="container my-5">
+    <div class="auth-card border-danger" style="max-width: 450px; margin: 0 auto; border-top: 5px solid #dc3545;">
+        <h3 class="register-title text-danger">회원 탈퇴</h3>
+        <div class="alert alert-light border-0 text-center" style="background-color: #f8f9fa;">
+            <p class="text-dark fw-bold mb-1">정말 서비스를 떠나시나요?</p>
+            <p class="text-muted small mb-0">
+                탈퇴 시 계정은 즉시 <strong>비활성화</strong>됩니다.<br>
+                (단, 개인정보 보호 정책에 따라 30일 이내에 복구 신청이 가능합니다.)
+            </p>
+        </div>
+
+        <form id="withdrawForm" class="mt-4">
+
+            <div id="error-container" class="alert alert-danger" style="display: none;" role="alert">
+                <ul id="error-messages" class="mb-0">
+                </ul>
+            </div>
+            <div class="form-group mb-4">
+                <label class="form-label fw-bold text-dark">비밀번호 확인</label>
+                <input type="password" id="password" class="auth-input" placeholder="현재 비밀번호를 입력해주세요" required>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-danger py-2" onclick="submitWithdraw()">회원 탈퇴 확정</button>
+                <a href="/users/mypage" class="btn btn-light border">취소</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+   <script src="/js/users/user_delete.js"></script>
+</th:block>
+</html>

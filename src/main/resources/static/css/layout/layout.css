@@ -1,0 +1,57 @@
+.navbar-nav {
+    display: flex;
+    gap: 15px;  /* 요즘은 gap이 최고 */
+}
+
+.navbar-nav li {
+    list-style: none;   /* 점 제거 */
+    margin-right: 15px; /* 간격 */
+}
+
+a {
+    color: inherit;
+    text-decoration: inherit;
+}
+
+
+/* 1. 에러 메시지 스타일 (공통 사용) */
+#error-messages {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.error-item {
+    font-size: 0.9rem;
+    color: #dc3545; /* 부트스트랩 danger 색상 */
+    margin-bottom: 4px;
+}
+
+/* 2. 이미지 플레이스홀더 (목록, 상세 공통) */
+.img-placeholder {
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    border-radius: 12px;
+}
+
+/* 3. 텍스트 생략 처리 (한 줄 이상 넘어가면 ...) */
+.text-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 4. 부드러운 카드 효과 */
+.soft-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.soft-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}

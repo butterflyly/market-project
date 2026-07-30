@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="sidebar" class="card border-0 shadow-sm p-3 bg-white rounded">
+    <div class="fw-bold text-secondary small px-2 mb-3 text-uppercase">관리 메뉴 목록</div>
+    <div class="nav flex-column gap-1" id="adminSidebarMenu">
+
+        <a class="nav-link admin-nav-link px-3 py-2 text-dark"
+           data-pattern="^/admin/dashboard$"
+           href="/admin/dashboard">
+            <i class="bi bi-speedometer2 me-2"></i> 대시보드 홈
+        </a>
+
+        <a class="nav-link admin-nav-link px-3 py-2 text-dark"
+           data-pattern="^/admin/reports"
+           href="/admin/reports">
+            <i class="bi bi-exclamation-triangle me-2 text-danger"></i> 신고 내역 관리
+        </a>
+
+        <a class="nav-link admin-nav-link px-3 py-2 text-dark"
+           data-pattern="^/admin/items/deleted"
+           href="/admin/items/deleted-list">
+            <i class="bi bi-trash-fill me-2 text-secondary"></i> 삭제글 아카이브
+        </a>
+
+        <a class="nav-link admin-nav-link px-3 py-2 text-dark"
+           data-pattern="^/admin/users"
+           href="/admin/users">
+            <i class="bi bi-people-fill me-2 text-primary"></i> 회원 모니터링
+        </a>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const currentPath = window.location.pathname; // 예: /admin/items/deleted-list
+            const menuLinks = document.querySelectorAll("#adminSidebarMenu .admin-nav-link");
+
+            menuLinks.forEach(link => {
+                const patternStr = link.getAttribute("data-pattern");
+                if (patternStr) {
+                    const regex = new RegExp(patternStr);
+                    // 현재 주소가 data-pattern 정규식과 매칭되면 active 클래스 주입
+                    if (regex.test(currentPath)) {
+                        link.classList.add("active");
+                    }
+                }
+            });
+        });
+    </script>
+</div>
+</html>

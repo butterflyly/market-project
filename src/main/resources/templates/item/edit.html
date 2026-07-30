@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="${item.title}">상품 수정</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/item/edit.css}">
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content" class="container my-5">
+
+    <div id="error-container" class="alert alert-danger mb-4" style="display: none;" role="alert">
+        <ul id="error-messages" class="mb-0"></ul>
+    </div>
+
+    <form id="editForm">
+        <input type="hidden" id="itemId" th:value="${item.id}">
+        <div class="row g-5">
+            <div class="col-md-6">
+                <div class="mb-4">
+                    <label class="form-label fw-bold">상품 이미지 (최대 5장)</label>
+                    <input type="file" id="images" name="images" class="form-control" multiple accept="image/*">
+                    <div id="image-preview-container" class="mt-3 d-flex flex-wrap gap-2">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">기존 등록된 이미지 <span class="text-muted fw-normal fs-7">(클릭 시 삭제)</span></label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <th:block th:each="img : ${item.itemImageList}">
+                            <div class="position-relative existing-image-card rounded border"
+                                 th:data-image-id="${img.id}"
+                                 th:onclick="'removeExistingImage(' + ${img.id} + ', this)'">
+
+                                <img th:src="${img.url}" class="w-100 h-100" style="object-fit: cover;">
+
+                                <div class="image-delete-overlay">
+                                    <i class="bi bi-trash3-fill fs-4 mb-1"></i> <span style="font-size: 12px; font-weight: bold;">삭제</span>
+                                </div>
+                            </div>
+                        </th:block>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-4">
+                    <label for="categoryId" class="form-label fw-bold">카테고리</label>
+                    <select class="form-select" id="categoryId" name="categoryId">
+                        <option th:each="category : ${categories}"
+                                th:value="${category.id}"
+                                th:text="${category.name}"
+                                th:selected="${category.id == item.categoryId}">카테고리</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="title" class="form-label fw-bold">상품 제목</label>
+                    <input type="text" class="form-control form-control-lg" id="title" name="title"
+                           th:value="${item.title}" placeholder="제목을 입력하세요">
+                </div>
+
+                <div class="mb-4">
+                    <label for="price" class="form-label fw-bold">가격 (원)</label>
+                    <input type="number" class="form-control" id="price" name="price"
+                           th:value="${item.price}" placeholder="가격을 입력하세요">
+                </div>
+
+                <div class="mb-4">
+                    <label for="content" class="form-label fw-bold">상품 설명</label>
+                    <textarea class="form-control" id="content" name="content" rows="8"
+                              th:text="${item.content}" placeholder="내용을 입력하세요"></textarea>
+                </div>
+
+                <div class="d-flex gap-2 mt-5">
+                    <button type="submit" class="btn btn-primary px-5 fw-bold">수정 완료</button>
+                    <a th:href="@{/items/detail/{id}(id=${item.id})}" class="btn btn-outline-secondary px-4">취소</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <th:block layout:fragment="script">
+        <script src="/js/item/edit.js"></script>
+    </th:block>
+</div>
+</body>
+</html>

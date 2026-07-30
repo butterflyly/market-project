@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>거래 후기 수정/삭제</title>
+</head>
+<body>
+<div layout:fragment="content" class="container my-5" style="max-width: 600px;">
+    <div class="card shadow-sm border-0 p-4">
+        <h4 class="fw-bold text-center mb-4">🛠️ 작성한 후기 관리</h4>
+        <form id="editReviewForm">
+            <input type="hidden" id="reviewId" th:value="${review.id}">
+
+            <div class="mb-4 text-center">
+                <label class="form-label d-block fw-bold text-secondary mb-2">매너 점수 수정</label>
+                <div class="btn-group" role="group">
+                    <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                        <input type="radio" class="btn-check" name="rating" th:id="|rate${i}|" th:value="${i}" th:checked="${review.rating == i}">
+                        <label class="btn btn-outline-warning" th:for="|rate${i}|" th:text="|⭐ ${i}|">⭐ 1</label>
+                    </th:block>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="content" class="form-label fw-bold text-secondary">후기 내용 수정</label>
+                <textarea class="form-control" id="content" rows="5" th:text="${review.content}" required></textarea>
+            </div>
+
+            <div class="row g-2">
+                <div class="col-8">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">수정 완료</button>
+                </div>
+                <div class="col-4">
+                    <button type="button" id="deleteReviewBtn" class="btn btn-outline-danger w-100">삭제</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script src="/js/review/edit.js"></script>
+    </th:block>
+</div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+/* 카테고리 필터 (가로 스크롤 방지 및 스타일) */
+.category-filter-wrapper {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+.category-filter-wrapper::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+/* 여백이나 정렬 스타일 */
+.nav-pills .nav-link.active {
+    background-color: #0d6efd;
+}

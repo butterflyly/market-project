@@ -1,0 +1,37 @@
+/* 마이페이지 메인 컨테이너 */
+.mypage-container {
+    max-width: 1000px;
+    margin: 2rem auto; /* 상단 여백 2rem, 가로 중앙 정렬 */
+}
+
+/* 유저 프로필 아이콘 영역 */
+.profile-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    background-color: #f8f9fa; /* light 배경 */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 내 정보 항목 박스 */
+.info-item-box {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
+}
+
+/* 테이블 내 텍스트 생략 처리 (상품명이 길 때) */
+.text-truncate-custom {
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 탭 버튼 커스텀 (필요 시) */
+.nav-pills .nav-link.active {
+    background-color: #75a8ff;
+}

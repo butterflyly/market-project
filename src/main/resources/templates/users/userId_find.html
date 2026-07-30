@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>아이디 찾기</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/users/auth-find.css}">
+    </th:block>
+</head>
+<body>
+<div layout:fragment="content" class="container mypage-container" style="max-width: 500px;">
+
+    <div class="card shadow-sm p-4 my-5 bg-white rounded border-0">
+        <div class="card-body">
+
+            <!-- 1. 입력 폼 영역 -->
+            <div id="formSection">
+                <div class="mb-4 text-center">
+                    <h4 class="fw-bold mb-1">아이디 찾기</h4>
+                    <small class="text-muted">가입 시 등록한 이메일 주소를 입력해 주세요.</small>
+                </div>
+
+                <div id="errorAlert" class="alert alert-danger small py-2 mb-3 d-none" role="alert"></div>
+
+                <form id="findUsernameForm">
+                    <div class="mb-3">
+                        <label for="email" class="form-label small fw-bold text-secondary">이메일</label>
+                        <input type="email" class="form-control" id="email" placeholder="example@email.com" required>
+                    </div>
+
+                    <button type="submit" id="btnSend" class="btn btn-primary w-100 py-2 fw-medium mt-3">
+                        아이디 찾기 메일 발송
+                    </button>
+                </form>
+
+                <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center small">
+                    <a th:href="@{/users/find-password}" class="text-secondary text-decoration-none">
+                        비밀번호를 잊으셨나요?
+                    </a>
+                    <a th:href="@{/users/login}" class="text-primary fw-bold text-decoration-none">
+                        로그인으로 돌아가기 <i class="bi bi-chevron-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2. 성공 메시지 영역 (기본 d-none) -->
+            <div id="successSection" class="text-center py-3 d-none">
+                <i class="bi bi-check-circle-fill text-success display-4 mb-3 d-block"></i>
+                <h4 class="fw-bold mb-2">메일 발송 완료</h4>
+                <p class="text-muted small mb-4" id="successMessage"></p>
+                <a th:href="@{/users/login}" class="btn btn-primary w-100 py-2 fw-medium">
+                    로그인 페이지로 이동
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<th:block layout:fragment="script">
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById('findUsernameForm');
+            const btnSend = document.getElementById('btnSend');
+            const errorAlert = document.getElementById('errorAlert');
+            const formSection = document.getElementById('formSection');
+            const successSection = document.getElementById('successSection');
+            const successMessage = document.getElementById('successMessage');
+
+            if (!form) return;
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const emailInput = document.getElementById('email').value.trim();
+                errorAlert.classList.add('d-none');
+
+                btnSend.disabled = true;
+                btnSend.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>메일 발송 중...';
+
+                try {
+
+                    const result = await Api.postRequest('/api/users/find-userId', { email: emailInput });
+
+                    // CommonResponse<T> (isAvailable / message) 검증
+                    if (result && result.isAvailable) {
+                        formSection.classList.add('d-none');
+                        successMessage.textContent = result.message || '입력하신 이메일로 아이디 안내 메일을 발송했습니다.';
+                        successSection.classList.remove('d-none');
+                    } else {
+                        errorAlert.textContent = result?.message || '일치하는 회원 정보를 찾을 수 없습니다.';
+                        errorAlert.classList.remove('d-none');
+                    }
+                } catch (error) {
+                    console.error('아이디 찾기 요청 실패:', error);
+                    errorAlert.textContent = error.message || '서버 통신 중 오류가 발생했습니다.';
+                    errorAlert.classList.remove('d-none');
+                } finally {
+                    btnSend.disabled = false;
+                    btnSend.textContent = '아이디 찾기 메일 발송';
+                }
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>

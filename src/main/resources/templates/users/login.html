@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>로그인</title>
+
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" type="text/css" href="/css/users/user-common.css">
+        <link rel="stylesheet" type="text/css" href="/css/users/login.css">
+    </th:block>
+</head>
+<div layout:fragment="content" class="container my-5">
+
+    <div class="auth-card">
+        <h3 class="register-title">로그인</h3>
+        <p style="color: #888; font-size: 14px; text-align: center; margin-bottom: 30px;">
+            서비스 이용을 위해 아이디와 비밀번호를 입력해주세요.
+        </p>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <input type="text" id="username" name="username"
+                       class="auth-input" placeholder="아이디" required>
+            </div>
+
+            <div class="form-group">
+                <input type="password" id="password" name="password"
+                       class="auth-input" placeholder="비밀번호" required>
+                <div id="loginErrorMessage" class="msg-error" style="display:none;"></div>
+            </div>
+
+            <div class="form-group login-options">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="rememberMe">
+                    <span class="checkbox-text">로그인 상태 유지</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                로그인
+            </button>
+
+            <div class="auth-footer">
+                <a href="/users/register">아직 회원이 아니신가요? <span>회원가입</span></a>
+            </div>
+
+            <div class="d-flex flex-column gap-2 mt-4">
+                <a th:href="@{/oauth2/authorization/google(redirectUrl=${param.redirectUrl})}" class="btn btn-outline-dark w-100 fw-bold py-2">
+                    <img src="/images/google-icon.png" style="width:18px; margin-right:8px;"> Google 계정으로 로그인
+                </a>
+
+                <a th:href="@{/oauth2/authorization/naver(redirectUrl=${param.redirectUrl})}" class="btn btn-success w-100 fw-bold py-2" style="background-color: #03C75A; border: none;">
+                    <i class="bi bi-chat-fill me-2"></i> 네이버 아이디로 로그인
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script src="/js/users/login.js"></script>
+    </th:block>
+
+</div>
+</html>

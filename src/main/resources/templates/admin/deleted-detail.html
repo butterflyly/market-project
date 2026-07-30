@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="| 어드민 - [삭제글] ${item.title}|">삭제글 상세 아카이브</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/item/detail.css}">
+        <link rel="stylesheet" type="text/css" href="/css/admin/common.css">
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content" class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div th:replace="~{layout/admin-sidebar :: sidebar}"></div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card border-danger mb-5 shadow">
+                <div class="card-header bg-danger text-white fw-bold d-flex justify-content-between align-items-center py-3">
+                    <span><i class="bi bi-shield-lock-fill me-2"></i> [포렌식 데이터] 본 내역은 유저가 삭제하여 숨김 처리된 백업 데이터입니다.</span>
+                    <button class="btn btn-sm btn-light fw-bold" onclick="window.print()"><i class="bi bi-printer"></i> 서류 인쇄</button>
+                </div>
+                <div class="card-body bg-light row g-3">
+                    <div class="col-md-4 border-end">
+                        <small class="text-muted d-block">데이터 관리 코드</small>
+                        <span class="fw-bold fs-5 text-dark" th:text="|ARTICLE-NO-${item.id}|">ID</span>
+                    </div>
+                    <div class="col-md-4 border-end">
+                        <small class="text-muted d-block">피의자(작성자) 고유 ID</small>
+                        <span class="fw-bold fs-5 text-primary" th:text="${item.sellerUsername}">scammer123</span>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">최종 파기 대기일 (updatedAt)</small>
+                        <span class="fw-bold fs-5 text-danger" th:text="${item.finaldestructionDate}">일시</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div th:if="${#lists.isEmpty(item.itemImageList)}"
+                         class="item-image-placeholder mb-3 d-flex align-items-center justify-content-center border rounded bg-light"
+                         style="height: 400px;">
+                        <div class="text-muted text-center">
+                            <i class="bi bi-image fs-1 d-block mb-2"></i>
+                            <span>등록된 상품 이미지가 없습니다.</span>
+                        </div>
+                    </div>
+
+                    <div th:if="${!#lists.isEmpty(item.itemImageList)}" id="itemImageCarousel" class="carousel slide mb-3 border rounded shadow-sm overflow-hidden" data-bs-ride="carousel">
+                        <div class="carousel-indicators" th:if="${#lists.size(item.itemImageList) > 1}">
+                            <button th:each="img, stat : ${item.itemImageList}" type="button" data-bs-target="#itemImageCarousel"
+                                    th:data-bs-slide-to="${stat.index}" th:classappend="${stat.first} ? 'active'"
+                                    th:aria-current="${stat.first} ? 'true' : 'false'"></button>
+                        </div>
+                        <div class="carousel-inner" style="height: 400px; background-color: #000;">
+                            <div th:each="img, stat : ${item.itemImageList}" class="carousel-item h-100" th:classappend="${stat.first} ? 'active'">
+                                <img th:src="${img.url}" class="d-block w-100 h-100" style="object-fit: contain; background-color: #f8f9fa;" alt="상품상세이미지">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="item-info-header">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="badge bg-dark" th:text="${item.categoryName}">카테고리</span>
+                                <small class="text-muted ms-2" th:text="|최초 등록일: ${item.createdAt}|">2026</small>
+                            </div>
+                            <div class="text-muted small">
+                                <i class="bi bi-eye"></i> 누적 조회수: <span th:text="${item.views}">0</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <span class="badge bg-danger p-2 fs-6">유저 삭제 완료(소프트 삭제)</span>
+                            <span class="badge bg-secondary p-2 fs-6 ms-1" th:text="|최종 거래상태: ${item.itemStatus.name()}|">STATUS</span>
+                        </div>
+                        <h1 class="display-6 fw-bold text-decoration-line-through text-muted" th:text="${item.title}">상품 제목</h1>
+                        <h2 class="text-danger fw-bold mt-3" th:text="|${#numbers.formatInteger(item.price, 0, 'COMMA')}원|">0원</h2>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between mb-4 p-3 border rounded shadow-sm bg-white">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <img th:src="${item.sellerProfileUrl != null ? item.sellerProfileUrl : '/images/default-profile.png'}"
+                                     class="rounded-circle border" style="width: 50px; height: 50px; object-fit: cover;" alt="작성자">
+                            </div>
+                            <div class="ms-3">
+                                <h5 class="mb-0 fw-bold text-dark">
+                                    <span th:text="${item.sellerDisplayName}">닉네임</span>
+                                    <small class="text-muted font-monospace" th:text="|(${item.sellerUsername})|">(id)</small>
+                                </h5>
+                                <small class="text-muted d-block" th:text="|작성자 고유 시퀀스 고유값: No.${item.sellerId}|">No.0</small>
+                            </div>
+                        </div>
+                        <div>
+                            <a th:href="@{|/admin/users/detail/${item.sellerId}|}" class="btn btn-sm btn-outline-dark fw-bold">
+                                <i class="bi bi-person-badge"></i> 회원 영구조치
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="item-content mb-5 p-3 border rounded bg-white" style="min-height: 200px; white-space: pre-wrap; font-size: 1.1rem;">
+                        <p class="fw-bold text-secondary border-bottom pb-2"><i class="bi bi-body-text"></i> 등록 본문 사본</p>
+                        <span th:text="${item.content}">사기 글의 상세 설명...</span>
+                    </div>
+
+                    <div class="d-flex gap-2 align-items-center border-top pt-3">
+                        <a th:href="@{/admin/items/deleted-list}" class="btn btn-dark px-4">
+                            <i class="bi bi-arrow-left"></i> 아카이브 목록으로
+                        </a>
+                        <small class="text-muted ms-auto"><i class="bi bi-info-circle"></i> 본 화면은 외부로 노출되지 않는 최고 권한 관리자 전용 뷰입니다.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

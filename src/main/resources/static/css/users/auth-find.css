@@ -1,0 +1,46 @@
+/* 아이디/비밀번호 찾기 공통 스타일 */
+.auth-find-container {
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.auth-find-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.auth-find-card .form-control {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+}
+
+.auth-find-card .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.auth-find-card .btn-submit {
+    padding: 0.75rem;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.auth-find-footer {
+    border-top: 1px solid #f0f0f0;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+}
+
+.auth-find-footer a {
+    color: #6c757d;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.auth-find-footer a:hover {
+    color: #0d6efd;
+}

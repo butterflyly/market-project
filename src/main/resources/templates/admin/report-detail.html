@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>👑 어드민 - 신고 상세 검토</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" type="text/css" href="/css/admin/common.css">
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content" class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div th:replace="~{layout/admin-sidebar :: sidebar}"></div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="mb-4">
+                <a th:href="@{/admin/reports(status=${report.status})}" class="btn btn-sm btn-outline-dark">
+                    <i class="bi bi-arrow-left"></i> 신고 리스트로 돌아가기
+                </a>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0 mb-4 bg-white">
+                        <div class="card-header bg-dark text-white py-3 fw-bold">
+                            📌 신고 접수 개요 (No. <span th:text="${report.id}">00</span>)
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3 border-bottom pb-3 mb-4">
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">신고 사유 카테고리</small>
+                                    <span class="fs-5 fw-bold text-danger" th:text="${report.reportTypeDescription}">사기 의심</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">접수 시각</small>
+                                    <span class="fs-5 fw-bold text-dark" th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm:ss')}">일시</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-secondary"><i class="bi bi-chat-right-text-fill text-warning"></i> 신고자 진술 내용</label>
+                                <div class="p-3 border rounded bg-light" style="white-space: pre-wrap; font-size: 1.05rem;" th:text="${report.content}">
+                                    신고자가 적은 구체적인 정황...
+                                </div>
+                            </div>
+
+                            <div class="p-3 border rounded shadow-sm bg-white d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-secondary mb-1">신고 대상 상품</span>
+                                    <h5 class="fw-bold mb-1 text-dark" th:text="${report.targetItemTitle}">아이폰 팔아요 사기글 제목</h5>
+                                    <span class="text-danger fw-bold small" th:text="|가격: ${#numbers.formatInteger(report.targetItemPrice, 0, 'COMMA')}원|">0원</span>
+                                </div>
+                                <a th:href="@{|/items/detail/${report.targetItemId}|}" target="_blank" class="btn btn-sm btn-outline-primary fw-bold">
+                                    <i class="bi bi-box-arrow-up-right"></i> 원본 게시글 검토
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0 mb-4 bg-white">
+                        <div class="card-header bg-secondary text-white fw-bold py-3">
+                            <i class="bi bi-people-fill"></i> 이해관계자 프로필 추적
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="mb-3 p-2 border-bottom">
+                                <small class="text-danger fw-bold d-block mb-1">🚨 피신고자 (피의자)</small>
+                                <span class="fw-bold text-dark fs-5" th:text="${report.sellerNickname}">판매자닉</span>
+                                <small class="text-muted d-block" th:text="|계정 ID: ${report.sellerUsername}|">ID</small>
+                                <a th:href="@{|/admin/users/detail/${report.sellerId}|}" class="btn btn-xs btn-outline-danger py-0 px-2 mt-2 font-monospace" style="font-size:0.8rem;">회원 정조치 관리 ➔</a>
+                            </div>
+                            <div class="p-2">
+                                <small class="text-success fw-bold d-block mb-1">👤 신고자 (원고)</small>
+                                <span class="fw-bold text-dark" th:text="${report.reporterNickname}">신고자닉</span>
+                                <small class="text-muted d-block" th:text="|계정 ID: ${report.reporterUsername}|">ID</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border-danger">
+                        <div class="card-header bg-danger text-white fw-bold py-3">
+                            <i class="bi bi-gavel"></i> 신고 제재 관리자 액션
+                        </div>
+                        <div class="card-body bg-light p-3">
+                            <th:block th:if="${report.status.name() == 'PENDING'}">
+                                <p class="small text-muted mb-3">검토 결과에 따라 하단의 정책 버튼을 선택해 주세요. 처리 즉시 데이터가 반영됩니다.</p>
+                                <div class="d-flex flex-column gap-2">
+                                    <form th:action="@{|/admin/reports/execute-scam/${report.id}|}" method="post"
+                                          onsubmit="return confirm('🚨 [영구 제재] 해당 게시글을 삭제하고 작성자를 즉시 블랙 회원으로 강등하시겠습니까?');">
+                                        <button type="submit" class="btn btn-danger w-100 fw-bold py-2 shadow-sm text-start">
+                                            <i class="bi bi-shield-slash-fill me-1"></i> [사기] 즉시 블랙 + 글 삭제
+                                        </button>
+                                    </form>
+                                    <form th:action="@{|/admin/reports/blind-item/${report.id}|}" method="post"
+                                          onsubmit="return confirm('⚠️ [일반 제재] 해당 게시글을 삭제하고 작성자에게 경고 1회를 무조건 부여하시겠습니까? (3회 누적 시 자동 블랙)');">
+                                        <button type="submit" class="btn btn-warning w-100 fw-bold py-2 shadow-sm text-dark text-start">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i> [위반] 경고 부여 + 글 삭제
+                                        </button>
+                                    </form>
+                                    <form th:action="@{|/admin/reports/process/${report.id}|}" method="post"
+                                          onsubmit="return confirm('✅ 허위 신고 등으로 판단하여 아무런 제재 없이 단순 종결 처리하시겠습니까?');">
+                                        <button type="submit" class="btn btn-secondary w-100 fw-bold py-2 shadow-sm text-start">
+                                            <i class="bi bi-check-circle-fill me-1"></i> [무혐의] 단순 신고 종결
+                                        </button>
+                                    </form>
+                                </div>
+                            </th:block>
+
+                            <th:block th:if="${report.status.name() == 'PROCESSED'}">
+                                <div class="text-center py-3">
+                                    <i class="bi bi-shield-check text-success fs-1"></i>
+                                    <h5 class="fw-bold text-success mt-2 mb-1">조치 완료된 신고 건</h5>
+                                    <small class="text-muted" th:text="|종결 일시: ${#temporals.format(report.processedAt, 'yyyy-MM-dd HH:mm:ss')}|">일시</small>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>👑 어드민 - 삭제 게시글 관리</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/layout/item-common.css}">
+        <link rel="stylesheet" type="text/css" href="/css/admin/common.css">
+
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content" class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div th:replace="~{layout/admin-sidebar :: sidebar}"></div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <div>
+                    <h1 class="h3 mb-1 text-danger fw-bold">🛑 소프트 삭제 게시글 아카이브</h1>
+                    <small class="text-muted">수사기관 협조 및 분쟁 조정을 위한 삭제 데이터 조회 구역입니다. (1개월 후 완전 소멸)</small>
+                </div>
+                <span class="badge bg-danger p-2 fs-6" th:text="|총 ${items.totalElements}건 보존 중|">총 0건</span>
+            </div>
+
+            <div class="search-wrapper mb-4 p-3 bg-light rounded border shadow-sm">
+                <form th:action="@{/admin/items/deleted-list}" method="get">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-secondary-subtle">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" name="kw" class="form-control border-secondary-subtle"
+                               placeholder="게시글 제목, 내용, 작성자 고유 ID(username), 닉네임을 입력하세요..." th:value="${keyword}">
+                        <button class="btn btn-danger px-4 fw-bold" type="submit">통합 추적</button>
+                        <a th:href="@{/admin/items/deleted-list}" class="btn btn-outline-secondary px-3" th:if="${keyword != ''}">초기화</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-responsive shadow-sm rounded border bg-white">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                    <tr>
+                        <th style="width: 8%;">글 ID</th>
+                        <th style="width: 12%;">카테고리</th>
+                        <th style="width: 40%;">게시글 제목</th>
+                        <th style="width: 20%;">피의자(작성자) 정보</th>
+                        <th style="width: 10%;">최종 가격</th>
+                        <th style="width: 10%;">삭제(수정)일시</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(items.content)}">
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-folder-x fs-1 d-block mb-2"></i>
+                            <span>조건에 매칭되거나 보존 기간 내의 삭제된 게시글이 없습니다.</span>
+                        </td>
+                    </tr>
+
+                    <tr th:each="item : ${items.content}">
+                        <td th:text="${item.id}" class="text-secondary fw-bold">00</td>
+                        <td>
+                            <span class="badge bg-secondary-subtle text-dark border border-secondary" th:text="${item.categoryName}">디지털</span>
+                        </td>
+                        <td>
+                            <a th:href="@{|/admin/items/deleted-detail/${item.id}|}"
+                               class="text-decoration-none fw-semibold text-dark text-truncate d-block"
+                               style="max-width: 450px;" th:text="${item.title}">급처 사기글 제목</a>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <small class="text-muted" th:text="|ID: ${item.sellerUsername}|">ID: user123</small>
+                            </div>
+                        </td>
+                        <td class="fw-bold text-danger" th:text="|${#numbers.formatInteger(item.price, 0, 'COMMA')}원|">0원</td>
+                        <td>
+                            <small class="text-muted" th:text="${item.updatedAt}">2026-05-29 16:40</small>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${items.totalPages > 1}" class="d-flex justify-content-center mt-5">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item" th:classappend="${items.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/items/deleted-list(page=${items.number - 1}, kw=${keyword})}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li th:each="pageIdx : ${#numbers.sequence(0, items.totalPages - 1)}"
+                            th:if="${pageIdx >= items.number - 2 and pageIdx <= items.number + 2}"
+                            class="page-item" th:classappend="${pageIdx == items.number} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/items/deleted-list(page=${pageIdx}, kw=${keyword})}" th:text="${pageIdx + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${items.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/items/deleted-list(page=${items.number + 1}, kw=${keyword})}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

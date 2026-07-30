@@ -1,0 +1,36 @@
+/* 이미지 카드의 기본 틀 */
+    .existing-image-card {
+        width: 100px;
+        height: 100px;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    /* 마우스를 올렸을 때 나타날 어두운 막(오버레이) */
+    .image-delete-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(220, 53, 69, 0.8); /* 부트스트랩 danger 색상 + 투명도 80% */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        opacity: 0; /* 평소에는 숨김 */
+        transition: opacity 0.2s ease-in-out; /* 부드러운 전환 효과 */
+        border-radius: 0.375rem; /* 부트스트랩 rounded 크기 */
+    }
+
+    /* 마우스를 올리면 오버레이가 스르륵 등장 */
+    .existing-image-card:hover .image-delete-overlay {
+        opacity: 1;
+    }
+
+    /* 삭제 아이콘 팅김 애니메이션 효과 (디테일) */
+    .existing-image-card:hover .image-delete-overlay i {
+        transform: scale(1.1);
+        transition: transform 0.2s ease-in-out;
+    }

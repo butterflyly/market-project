@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="|${targetUser.nickname}님의 거래 후기|">판매자 후기 목록</title>
+</head>
+<body>
+<div layout:fragment="content" class="container my-5" style="max-width: 700px;">
+
+    <div class="d-flex align-items-center bg-light p-4 rounded mb-4 shadow-sm">
+        <img th:src="${targetUser.profileUrl != null ? targetUser.profileUrl : '/images/default-profile.png'}"
+             class="rounded-circle border" style="width: 60px; height: 60px; object-fit: cover;">
+        <div class="ms-3">
+            <h5 class="fw-bold mb-1" th:text="|${targetUser.nickname}님의 상점 후기|">닉네임님의 상점 후기</h5>
+            <small class="text-muted" th:text="|받은 후기 총 ${reviews.totalElements}개|">받은 후기 총 0개</small>
+        </div>
+    </div>
+
+    <div class="list-group gap-3" th:if="${!reviews.isEmpty()}">
+        <div class="list-group-item rounded border shadow-sm p-3" th:each="review : ${reviews.content}">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <span class="text-warning fw-bold" th:text="${'⭐'.repeat(review.rating)}">⭐⭐⭐</span>
+                    <small class="text-muted ms-2" th:text="${review.writerNickname}">구매자 닉네임</small>
+                </div>
+                <small class="text-muted" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}">2026-05-29</small>
+            </div>
+            <p class="mb-1 text-secondary" style="white-space: pre-wrap;" th:text="${review.content}">정말 친절하시고 물건 상태도 좋습니다!</p>
+            <small class="badge bg-light text-dark border mt-2" th:text="|거래 상품: ${review.itemTitle}|">거래 상품</small>
+        </div>
+    </div>
+
+    <div th:if="${reviews.isEmpty()}" class="py-5 text-center text-muted card border shadow-sm">
+        <i class="bi bi-chat-square-heart fs-1 mb-2 text-secondary"></i>
+        <span>아직 작성된 거래 후기가 없습니다.</span>
+    </div>
+</div>

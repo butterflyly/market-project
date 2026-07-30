@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>👑 어드민 - 회원 상세 제재 조치 관리</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" type="text/css" href="/css/admin/common.css">
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content" class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div th:replace="~{layout/admin-sidebar :: sidebar}"></div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="mb-4">
+                <a th:href="@{/admin/users}" class="btn btn-sm btn-outline-dark">
+                    <i class="bi bi-arrow-left"></i> 유저 대시보드로 돌아가기
+                </a>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="card shadow-sm border-0 bg-white">
+                        <div class="card-header bg-dark text-white py-3 fw-bold d-flex justify-content-between align-items-center">
+                            <span>👤 회원 상세 프로필 요약 (No. <span th:text="${user.id}">00</span>)</span>
+                            <span class="badge bg-warning text-dark font-monospace" th:text="|가입일자: ${#temporals.format(user.createdAt, 'yyyy-MM-dd')}|">2026-01-01</span>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                                <img th:src="${user.profileUrl != null ? user.profileUrl : '/images/default-profile.png'}"
+                                     class="rounded-circle border shadow-sm" style="width: 80px; height: 80px; object-fit: cover;" alt="프로필">
+                                <div class="ms-4">
+                                    <h3 class="fw-bold text-dark mb-1" th:text="${user.nickname}">유저 닉네임</h3>
+                                    <span class="text-muted small font-monospace" th:text="|@${user.username}|">@userid123</span>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="small text-muted d-block">민원 소명용 이메일</label>
+                                    <span class="fw-bold text-dark font-monospace" th:text="${user.email}">user@example.com</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small text-muted d-block">대표 디스플레이 닉네임</label>
+                                    <span class="fw-bold text-dark" th:text="${user.displayNickname != null ? user.displayNickname : '-'}">디스플레이닉</span>
+                                </div>
+                                <div class="col-md-6 mt-3">
+                                    <label class="small text-muted d-block">누적 경고 횟수</label>
+                                    <span class="fs-5 fw-bold text-danger" th:text="|${user.warningCount} / 3 회|">0 / 3 회</span>
+                                </div>
+                                <div class="col-md-6 mt-3">
+                                    <label class="small text-muted d-block">현재 계정 상태 상태</label>
+                                    <span class="badge bg-dark fs-6 p-2" th:if="${user.deleted}">🗑️ 탈퇴회원 (소프트 삭제)</span>
+                                    <th:block th:if="${!user.deleted}">
+                                        <span class="badge bg-danger fs-6 p-2" th:if="${user.role.name() == 'Black'}">🚫 활동 정지 (Black)</span>
+                                        <span class="badge bg-success fs-6 p-2" th:if="${user.role.name() == 'NORMAL'}">✅ 정상 활동 회원</span>
+                                        <span class="badge bg-primary fs-6 p-2" th:if="${user.role.name() == 'ADMIN'}">👑 시스템 최고 관리자</span>
+                                    </th:block>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="card shadow-sm border-primary">
+                        <div class="card-header bg-primary text-white fw-bold py-3">
+                            <i class="bi bi-gavel"></i> 어드민 즉각 권한 조절실
+                        </div>
+                        <div class="card-body bg-light p-4">
+                            <p class="small text-muted mb-4">해당 유저로부터 인입된 이메일 소명 자료 혹은 모니터링 결과에 근거하여 계정 권한을 강제 복원 및 차단할 수 있습니다.</p>
+
+                            <div class="d-flex flex-column gap-3">
+
+                                <!-- 영구 파기 방지(증거 보존) 제동 제어 박스 -->
+                                <div class="p-3 bg-white rounded border border-dark shadow-sm mt-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="fw-bold text-dark mb-0">
+                                            <i class="bi bi-pin-angle-fill text-danger"></i> 포렌식 데이터 증거 보존 (삭제 제동)
+                                        </h6>
+                                        <!-- 상태 바이브 뱃지 -->
+                                        <span class="badge bg-danger" th:if="${user.isPermanentPreserved}">🔒 영구 보존 중 (파기 불가)</span>
+                                        <span class="badge bg-secondary" th:if="${!user.isPermanentPreserved}">⏳ 30일 후 자동 파기 대상</span>
+                                    </div>
+
+                                    <p class="small text-muted mb-3">
+                                        사법기관 수사 협조 및 사기 피의자 데이터 보존이 필요한 경우 활성화합니다.
+                                        활성화 시 30일 자동 영구 삭제 Scheduler 대상에서 영구 제외됩니다.
+                                    </p>
+
+                                    <form th:action="@{|/admin/users/toggle-preserve/${user.id}|}" method="post">
+                                        <!-- 보존 설정 버튼 -->
+                                        <button type="submit" class="btn btn-outline-danger w-100 fw-bold" th:if="${!user.isPermanentPreserved}"
+                                                onclick="return confirm('🚨 해당 유저의 데이터를 30일 후 자동 영구 파기 대상에서 제외(영구 보존)하시겠습니까?');">
+                                            <i class="bi bi-lock-fill"></i> 30일 자동 삭제 제동 걸기 (영구 보존)
+                                        </button>
+
+                                        <!-- 보존 해제 버튼 -->
+                                        <button type="submit" class="btn btn-outline-secondary w-100 fw-bold" th:if="${user.isPermanentPreserved}"
+                                                onclick="return confirm('🔓 증거 보존을 해제하시겠습니까? (다시 30일 후 자동 파기 스케줄러 대상에 포함됩니다)');">
+                                            <i class="bi bi-unlock-fill"></i> 삭제 제동 해제 (스케줄러 대상 재포함)
+                                        </button>
+                                    </form>
+                                </div>
+
+
+                                <div class="p-3 bg-white rounded border border-warning shadow-sm" th:if="${user.deleted}">
+                                    <h6 class="fw-bold text-warning-dark mb-2"><i class="bi bi-exclamation-diamond-fill"></i> 소프트 삭제 유저 탐지됨</h6>
+                                    <p class="small text-muted mb-3">본 계정은 사용자가 직접 탈퇴했거나 강제 삭제 조치된 유저입니다. 복원 시 모든 데이터가 정상 환원됩니다.</p>
+                                    <form th:action="@{|/admin/users/restore-deleted/${user.id}|}" method="post">
+                                        <input type="hidden" name="currentTab" value="ALL">
+                                        <button type="submit" class="btn btn-warning w-100 fw-bold text-dark"
+                                                onsubmit="return confirm('🩹 해당 유저의 회원 탈퇴 기록을 무효화하고 즉시 정상 회원 상태로 전격 복구하시겠습니까?');">
+                                            <i class="bi bi-patch-check"></i> 탈퇴 상태 원상복구(해제)하기
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div class="p-3 bg-white rounded border border-danger shadow-sm" th:if="${!user.deleted && user.role.name() == 'Black'}">
+                                    <h6 class="fw-bold text-danger mb-2"><i class="bi bi-shield-lock-fill"></i> 제재 대상 블랙 회원 탐지됨</h6>
+                                    <p class="small text-muted mb-3">경고 3회 누적 또는 관리자 직권으로 차단된 유저입니다. 해제 시 경고 횟수가 0으로 완벽 리셋됩니다.</p>
+                                    <form th:action="@{|/admin/users/restore-black/${user.id}|}" method="post">
+                                        <input type="hidden" name="currentTab" value="ALL">
+                                        <button type="submit" class="btn btn-success w-100 fw-bold"
+                                                onsubmit="return confirm('🔄 이 유저의 블랙리스트 규제를 해제하고 다시 일반 서비스 이용 권한을 양도하시겠습니까?');">
+                                            <i class="bi bi-arrow-counterclockwise"></i> 블랙리스트 규제 완전 해제(복원)
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div class="p-3 bg-white rounded border border-secondary shadow-sm" th:if="${!user.deleted && user.role.name() == 'NORMAL'}">
+                                    <h6 class="fw-bold text-secondary mb-2"><i class="bi bi-shield-check-fill text-success"></i> 정상 활동 유저 상태</h6>
+                                    <p class="small text-muted mb-3">현재 깨끗한 상태이나, 사법기관 협조 요청 및 심각한 이용 위반 확인 시 경고 누적 없이 직권으로 블랙 처리가 가능합니다.</p>
+                                    <form th:action="@{|/admin/users/force-black/${user.id}|}" method="post">
+                                        <input type="hidden" name="currentTab" value="ALL">
+                                        <button type="submit" class="btn btn-danger w-100 fw-bold"
+                                                onsubmit="return confirm('🚨 [주의] 경고 카운트 단계와 상관없이 해당 회원을 즉시 차단 회원(Black)으로 영구 격하하시겠습니까?');">
+                                            <i class="bi bi-person-x-fill"></i> 직권 수동 강제 블랙 조치
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>채팅방 - [[${roomInfo.itemTitle}]]</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/chat/chat-room.css}">
+    </th:block>
+</head>
+
+<div layout:fragment="content" class="container chat-container my-4">
+    <div class="card shadow-sm border-0 mx-auto chat-card">
+
+        <div class="card-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <a th:href="@{|/items/detail/${roomInfo.itemId}|}" class="text-decoration-none">
+                    <img th:src="${roomInfo.itemImageUrl}"
+                         class="rounded border"
+                         style="width: 50px; height: 50px; object-fit: cover;"
+                         alt="상품이미지">
+                </a>
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark" th:text="${roomInfo.itemTitle}">상품 제목</h6>
+                    <small class="text-muted">
+                        <span th:text="${roomInfo.partnerNickname}">상대방</span>님과의 대화
+                    </small>
+                </div>
+            </div>
+            <button class="btn btn-outline-danger btn-sm border-0" id="chat_leave_Btn">
+                <i class="fa-solid fa-right-from-bracket"></i> 나가기
+            </button>
+        </div>
+
+        <div class="card-body p-4" id="message-area">
+            <!-- messages 리스트 순회 (iterStat으로 이전 요소 접근) -->
+            <th:block th:each="msg, iterStat : ${roomInfo.messages}">
+
+                <!--  1. 날짜 구분선 조건 판별 -->
+                <!-- 조건: 첫번째 메시지(index == 0)이거나, '이전 메시지의 작성일자'와 '현재 메시지의 작성일자'가 다를 때 -->
+                <th:block th:with="
+                    currentDate=${#temporals.format(msg.createdAt, 'yyyy-MM-dd')},
+                    prevDate=${iterStat.index > 0 ? #temporals.format(roomInfo.messages[iterStat.index - 1].createdAt, 'yyyy-MM-dd') : ''}">
+
+                    <div th:if="${iterStat.index == 0 || currentDate != prevDate}"
+                         class="d-flex justify-content-center my-3 w-100 date-separator"
+                         th:data-date="${currentDate}">
+                        <div class="bg-light text-muted small px-3 py-1 rounded-pill shadow-sm border">
+                            <i class="fa-regular fa-calendar me-1"></i>
+                            <span class="formatted-date-text"
+                                  th:text="${#temporals.format(msg.createdAt, 'yyyy년 M월 d일 EEEE')}">2026년 7월 24일 금요일</span>
+                        </div>
+                    </div>
+                </th:block>
+
+                <!--  2. 시스템 공지 (NOTICE) -->
+                <div th:if="${msg.type == 'NOTICE'}" class="d-flex justify-content-center my-3 w-100">
+                    <div class="bg-light text-muted small px-3 py-1 rounded-pill shadow-sm border">
+                        <i class="fa-solid fa-info-circle me-1"></i>
+                        <span th:text="${msg.content}">OO님이 채팅방에서 나갔습니다.</span>
+                    </div>
+                </div>
+
+                <!--  3. 상대방 메시지 -->
+                <div th:if="${!msg.isMine && msg.type != 'NOTICE'}" class="d-flex mb-3 justify-content-start w-100">
+                    <div class="chat-bubble shadow-sm partner-bubble">
+                        <p class="mb-1 small fw-bold text-primary" th:text="${msg.senderNickname}">상대방 닉네임</p>
+
+                        <div th:if="${msg.type == 'TALK'}" class="message-content" th:text="${msg.content}">내용</div>
+                        <img th:if="${msg.type == 'IMAGE'}" th:src="${msg.content}" class="chat-img-content" style="max-width: 200px; border-radius: 10px; cursor: pointer;" onclick="window.open(this.src)">
+
+                        <small class="chat-time text-muted"
+                               th:text="${#temporals.format(msg.createdAt, 'a h:mm')}">오후 2:02</small>
+                    </div>
+                </div>
+
+                <!--  4. 내 메시지 -->
+                <div th:if="${msg.isMine && msg.type != 'NOTICE'}" class="d-flex mb-3 justify-content-end w-100">
+                    <div class="chat-bubble shadow-sm mine-bubble">
+                        <div th:if="${msg.type == 'TALK'}" class="message-content" th:text="${msg.content}">내용</div>
+                        <img th:if="${msg.type == 'IMAGE'}" th:src="${msg.content}" class="chat-img-content" style="max-width: 200px; border-radius: 10px; cursor: pointer;" onclick="window.open(this.src)">
+
+                        <div class="d-flex align-items-center justify-content-end gap-1 mt-1">
+                            <!-- 상대방이 안 읽었을 때(!isRead)만 숫자 1 표시 -->
+                            <small th:if="${!msg.isRead}" class="unread-count text-warning fw-bold" style="font-size: 0.7rem;">1</small>
+                            <small class="chat-time text-muted" th:text="${#temporals.format(msg.createdAt, 'a h:mm')}">오후 2:05</small>
+                        </div>
+                    </div>
+                </div>
+
+            </th:block>
+        </div>
+
+        <div class="card-footer bg-white border-top p-3 position-relative">
+
+            <!--  이미지 업로드 미리보기 영역 -->
+            <div id="image-preview-container" class="mb-2 position-relative d-none" style="width: fit-content;">
+                <img id="image-preview" src="" alt="미리보기" class="rounded border shadow-sm" style="width: 70px; height: 70px; object-fit: cover;">
+                <button type="button" id="cancel-image-btn" class="btn btn-danger btn-sm rounded-circle position-absolute top-0 start-100 translate-middle p-0 d-flex align-items-center justify-content-center" style="width: 20px; height: 20px; font-size: 10px;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="chat-form" class="d-flex gap-2 align-items-center">
+                <input type="hidden" id="roomId" th:value="${roomInfo.roomId}">
+                <input type="file" id="chat-image-input" style="display: none;" accept="image/*">
+
+                <!--  직관적으로 개선된 사진 첨부 버튼 -->
+                <button type="button" class="btn btn-outline-secondary" id="image-upload" title="사진 첨부">
+                    <i class="fa-regular fa-image fs-5"></i>
+                </button>
+
+                <input type="text" id="message-input" class="form-control border-0 bg-light"
+                       placeholder="메시지를 입력하세요..." autocomplete="off">
+
+                <button type="submit" class="btn btn-primary px-4">전송</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+
+    <!-- Day.js core 및 플러그인 라이브러리 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/ko.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+
+    <script th:inline="javascript">
+        const currentLoginUsername = /*[[${#authentication.name}]]*/ 'anonymous';
+    </script>
+    <script src="/js/chat/chat_room.js"></script>
+</th:block>
+</html>

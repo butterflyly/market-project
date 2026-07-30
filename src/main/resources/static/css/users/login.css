@@ -1,0 +1,41 @@
+.login-options {
+    margin-bottom: 25px; /* '로그인 상태 유지'와 '로그인 버튼' 사이 간격 */
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: #666;
+}
+
+.checkbox-container input {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+    accent-color: #865bd8; /* 체크박스 포인트 컬러 */
+}
+
+.auth-footer {
+    margin-top: 25px;
+    text-align: center;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.auth-footer a {
+    color: #888;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.auth-footer a span {
+    color: #865bd8;
+    font-weight: 600;
+    margin-left: 5px;
+}
+
+.auth-footer a:hover span {
+    text-decoration: underline;
+}
