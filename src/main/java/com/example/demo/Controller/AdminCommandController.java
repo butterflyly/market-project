@@ -93,8 +93,7 @@ public class AdminCommandController {
         // 1. 해당 게시글 작성자 경고 +1 및 게시글 처리
         userCommandService.warnSellerByItem(itemId);
 
-        // 2. 어드민 상품 목록이나 상세로 리다이렉트
-        return "redirect:/admin/items";
+        return "redirect:/items/list/2";
     }
 
     /**
@@ -105,7 +104,7 @@ public class AdminCommandController {
         // 1. 해당 게시글 작성자 즉시 블랙 + 게시글 처리
         userCommandService.forceBlackSellerByItem(itemId);
 
-        return "redirect:/admin/items";
+        return "redirect:/items/list/2";
     }
 
 }

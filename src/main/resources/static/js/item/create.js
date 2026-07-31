@@ -36,7 +36,7 @@ document.querySelector('form').onsubmit = async function(e) {
 
   try {
       const result = await Api.formRequest("/api/items/create", formData);
-      if (result && result.success) {
+      if (result && result.isAvailable) {
           alert(result.message);
           window.location.href = `/items/list/${categoryId}`;
       }

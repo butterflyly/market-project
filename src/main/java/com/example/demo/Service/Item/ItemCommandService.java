@@ -72,6 +72,7 @@ public class ItemCommandService {
                 .seller(users)
                 .itemCategory(category)
                 .price(form.price())
+                .itemStatus(ItemStatus.ON_SALE)
                 .build();
 
         itemRepository.save(item);
