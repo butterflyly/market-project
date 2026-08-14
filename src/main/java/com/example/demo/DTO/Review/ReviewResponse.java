@@ -8,6 +8,7 @@ public record ReviewResponse(
         Long id,
         Long itemId,
         String itemTitle,
+        String itemImageUrl,
         Long writerId,
         String writerNickname,
         String writerProfileUrl,
@@ -25,6 +26,7 @@ public record ReviewResponse(
                 review.getId(),
                 hasItem ? review.getItem().getId() : null,
                 hasItem ? review.getItem().getTitle() : "삭제된 상품의 리뷰입니다.",
+                review.getItem().getThumbnailUrl(),
 
                 hasWriter ? review.getWriter().getId() : null,
                 hasWriter ? review.getWriter().getDisplayNickname() : "탈퇴사용자",

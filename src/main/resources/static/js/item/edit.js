@@ -1,14 +1,24 @@
 // 기존 이미지 삭제 ID를 담을 배열 (글로벌 또는 적절한 스코프에 선언)
 let deleteImageIds = [];
 
-// 기존 이미지 삭제 버튼 클릭 시 실행될 함수
-function removeExistingImage(imageId, element) {
-    if (confirm("이 이미지를 삭제하시겠습니까?")) {
-        deleteImageIds.push(imageId); // 삭제 리스트에 추가
-        element.closest('.existing-image-card').style.display = 'none'; // 화면에서 숨김
-    }
-}
+// 기존 이미지 목록을 감싸는 부모 컨테이너(또는 form 전체)에 이벤트를 바인딩
+const editForm = document.getElementById('editForm');
+if (editForm) {
+    editForm.addEventListener('click', function(event) {
+        // 클릭된 요소가 기존 이미지 카드 내부인지, 혹은 카드 자체인지 판별
+        const imageCard = event.target.closest('.btn-remove-img');
 
+        if (imageCard) {
+            if (confirm("이 이미지를 삭제하시겠습니까?")) {
+                // data-image-id 속성에서 정수형 ID 추출
+                const imageId = imageCard.dataset.imageId;
+
+                deleteImageIds.push(imageId); // 삭제 리스트에 추가
+                imageCard.style.display = 'none'; // 화면에서 숨김
+            }
+        }
+    });
+}
 
 document.querySelector('form').onsubmit = async function(e) {
     e.preventDefault(); // 폼 제출 막기

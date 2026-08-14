@@ -56,6 +56,9 @@
                     <button class="nav-link active" id="item-tab" data-bs-toggle="tab" data-bs-target="#item-pane" type="button" role="tab">내 판매글</button>
                 </li>
                 <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="buy-item-tab" data-bs-toggle="tab" data-bs-target="#buy-item-pane" type="button" role="tab">내 구매 내역</button>
+                </li>
+                <li class="nav-item" role="presentation">
                     <button class="nav-link" id="like-tab" data-bs-toggle="tab" data-bs-target="#like-pane" type="button" role="tab">내 찜 목록</button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -91,9 +94,58 @@
                     </div>
                 </div>
                 <div class="text-center mt-4" th:if="${!myPageData.sellingPosts.isEmpty()}">
-                    <a th:href="@{/items/my-list}" class="btn btn-outline-secondary btn-sm px-5 rounded-pill">내 판매글 전체보기 <i class="bi bi-chevron-right ms-1"></i></a>
+                    <a th:href="@{/users/items/my-list}" class="btn btn-outline-secondary btn-sm px-5 rounded-pill">내 판매글 전체보기 <i class="bi bi-chevron-right ms-1"></i></a>
                 </div>
                 <div th:if="${myPageData.sellingPosts.isEmpty()}" class="py-5 text-center text-muted">등록된 상품이 없습니다.</div>
+            </div>
+
+
+            <div class="tab-pane fade" id="buy-item-pane" role="tabpanel" tabindex="0">
+                <!-- 구매한 상품이 있는 경우 -->
+                <div class="row row-cols-1 row-cols-md-2 g-3" th:if="${!myPageData.boughtPosts.isEmpty()}">
+                    <div class="col" th:each="item : ${myPageData.boughtPosts.content}">
+                        <div class="card h-100 border shadow-sm rounded p-2 flex-row align-items-center justify-content-between">
+                            <!-- 상품 정보 클릭 시 상세페이지 이동 -->
+                            <a th:href="@{/items/detail/{id}(id=${item.id})}" class="text-decoration-none text-dark d-flex align-items-center overflow-hidden me-2">
+                                <img th:src="${item.imageUrl}" class="rounded flex-shrink-0" style="width: 80px; height: 80px; object-fit: cover;" alt="상품 이미지">
+                                <div class="ms-3 overflow-hidden">
+                                    <h6 class="card-title text-truncate mb-1 fw-bold" th:text="${item.title}">상품 제목</h6>
+                                    <p class="card-text text-primary fw-bold mb-1" th:text="|${#numbers.formatInteger(item.price, 0, 'COMMA')}원|">0원</p>
+                                    <small class="text-muted" th:text="${item.createdAt}">2026-07-22</small>
+                                </div>
+                            </a>
+
+                            <!--  후기 작성 여부(hasReviewed)에 따른 버튼 분기 -->
+                            <div class="flex-shrink-0 ms-2">
+                                <!-- 1. 아직 리뷰를 작성하지 않은 경우: 클릭 시 리뷰 모달 열기 -->
+                                <button th:if="${!item.hasReviewed}"
+                                        type="button"
+                                        class="btn btn-outline-primary btn-sm rounded-pill px-3 btn-open-review-modal"
+                                        th:data-item-id="${item.id}"
+                                        th:data-item-title="${item.title}">
+                                    <i class="bi bi-pencil-square me-1"></i>후기 작성
+                                </button>
+
+                                <!-- 2. 이미 리뷰를 작성한 경우: 완료 배지 표시 -->
+                                <span th:if="${item.hasReviewed}" class="badge bg-light text-secondary border rounded-pill px-3 py-2">
+                        <i class="bi bi-check-circle-fill text-success me-1"></i>작성 완료
+                    </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 전체보기 버튼 -->
+                <div class="text-center mt-4" th:if="${!myPageData.boughtPosts.isEmpty()}">
+                    <a th:href="@{/users/items/my-buy-list}" class="btn btn-outline-secondary btn-sm px-5 rounded-pill">
+                        구매 내역 전체보기 <i class="bi bi-chevron-right ms-1"></i>
+                    </a>
+                </div>
+
+                <!-- 구매 내역이 없는 경우 -->
+                <div th:if="${myPageData.boughtPosts.isEmpty()}" class="py-5 text-center text-muted">
+                    구매한 상품이 없습니다.
+                </div>
             </div>
 
             <div class="tab-pane fade" id="like-pane" role="tabpanel" tabindex="0">
@@ -112,7 +164,7 @@
                     </div>
                 </div>
                 <div class="text-center mt-4" th:if="${!myPageData.likedPosts.isEmpty()}">
-                    <a th:href="@{/items/my-like-list}" class="btn btn-outline-secondary btn-sm px-5 rounded-pill">내 찜 목록 전체보기 <i class="bi bi-chevron-right ms-1"></i></a>
+                    <a th:href="@{/users/items/my-like-list}" class="btn btn-outline-secondary btn-sm px-5 rounded-pill">내 찜 목록 전체보기 <i class="bi bi-chevron-right ms-1"></i></a>
                 </div>
                 <div th:if="${myPageData.likedPosts.isEmpty()}" class="py-5 text-center text-muted">
                     <i class="bi bi-heartbreak fs-2 d-block mb-2"></i>
@@ -212,6 +264,11 @@
                     </div>
                 </div>
                 <div th:if="${myPageData.writtenReviews.isEmpty()}" class="py-5 text-center text-muted">작성한 거래 후기가 없습니다.</div>
+                <div class="text-center mt-3" th:if="${!myPageData.writtenReviews.isEmpty()}">
+                    <a th:href="@{/reviews/my/written}" class="btn btn-outline-secondary btn-sm px-5 rounded-pill">
+                        내가 쓴 후기 전체보기 <i class="bi bi-chevron-right ms-1"></i>
+                    </a>
+                </div>
             </div>
 
             <div class="tab-pane fade" id="received-review-pane" role="tabpanel" tabindex="0">
@@ -234,11 +291,64 @@
                     </div>
                 </div>
                 <div th:if="${myPageData.receivedReviews.isEmpty()}" class="py-5 text-center text-muted">아직 받은 거래 후기가 없습니다. 첫 후기를 기다려보세요!</div>
+                <div class="text-center mt-3" th:if="${!myPageData.receivedReviews.isEmpty()}">
+                    <a th:href="@{/reviews/my/received}" class="btn btn-outline-secondary btn-sm px-5 rounded-pill">
+                        내가 받은 후기 전체보기 <i class="bi bi-chevron-right ms-1"></i>
+                    </a>
+                </div>
             </div>
-
         </div>
+
+        <!--  리뷰 작성 모달 -->
+        <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="reviewModalLabel">거래 후기 작성</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="reviewForm">
+                            <input type="hidden" id="modalItemId" name="itemId">
+
+                            <!-- 상품 정보 표시 영역 -->
+                            <div class="p-2 bg-light rounded mb-3">
+                                <small class="text-muted d-block">거래 상품</small>
+                                <span id="modalItemTitle" class="fw-bold text-dark">상품 제목</span>
+                            </div>
+
+                            <!-- 별점 선택 -->
+                            <div class="mb-3 text-center">
+                                <label class="form-label d-block fw-bold">거래 만족도</label>
+                                <select class="form-select w-50 mx-auto text-center" id="modalRating" name="rating">
+                                    <option value="5" selected>⭐⭐⭐⭐⭐ (5점)</option>
+                                    <option value="4">⭐⭐⭐⭐ (4점)</option>
+                                    <option value="3">⭐⭐⭐ (3점)</option>
+                                    <option value="2">⭐⭐ (2점)</option>
+                                    <option value="1">⭐ (1점)</option>
+                                </select>
+                            </div>
+
+                            <!-- 후기 내용 -->
+                            <div class="mb-3">
+                                <label for="modalContent" class="form-label fw-bold">따뜻한 거래 후기</label>
+                                <textarea class="form-control" id="modalContent" name="content" rows="4"
+                                          placeholder="따뜻한 거래 경험을 공유해주세요. (예: 친절하고 약속 시간을 잘 지켜요!)" required></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">취소</button>
+                        <button type="button" class="btn btn-primary btn-sm px-4" id="submitReviewBtn">후기 등록하기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
+
+
 
 <th:block layout:fragment="script">
     <script src="/js/users/my_page.js"></script>

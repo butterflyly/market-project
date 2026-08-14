@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 채팅 목록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+<div class="container py-5" style="max-width: 900px;">
+    <div class="d-flex align-items-center mb-4">
+        <a th:href="@{/users/mypage}" class="btn btn-outline-secondary btn-sm me-3"><i class="bi bi-arrow-left"></i> 마이페이지</a>
+        <h4 class="mb-0 fw-bold">내 채팅 목록</h4>
+    </div>
+
+    <!-- 상단 구매/판매 필터 탭 -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${currentRole == 'BUYER'} ? 'active fw-bold'" th:href="@{/users/mypage/chats(role='BUYER')}">구매 채팅 목록</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${currentRole == 'SELLER'} ? 'active fw-bold'" th:href="@{/users/mypage/chats(role='SELLER')}">판매 채팅 목록</a>
+        </li>
+    </ul>
+
+    <!-- 채팅 목록 테이블 -->
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light text-center">
+                <tr>
+                    <th class="text-start ps-4">상품명</th>
+                    <th th:text="${currentRole == 'BUYER' ? '판매자' : '구매자'}">상대방</th>
+                    <th>입장</th>
+                </tr>
+                </thead>
+                <tbody class="text-center">
+                <tr th:each="chat : ${chats.content}">
+                    <td class="text-start ps-4 text-truncate fw-medium" style="max-width: 300px;" th:text="${chat.itemTitle}">상품 제목</td>
+                    <td th:text="${chat.partnerNickname}">상대방 닉네임</td>
+                    <td>
+                        <a th:href="@{|/chat/room/${chat.roomId}|}" class="btn btn-sm btn-primary px-3">대화하기</a>
+                    </td>
+                </tr>
+                <tr th:if="${chats == null or chats.isEmpty()}">
+                    <td colspan="3" class="py-5 text-muted">진행 중인 채팅 목록이 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 페이징 -->
+    <nav class="mt-4" th:if="${chats != null and chats.totalPages > 1}">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${chats.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/users/mypage/chats(role=${currentRole}, page=${chats.number - 1})}">이전</a>
+            </li>
+            <li class="page-item" th:each="pageNumber : ${#numbers.sequence(0, chats.totalPages - 1)}"
+                th:classappend="${pageNumber == chats.number} ? 'active'">
+                <a class="page-link" th:href="@{/users/mypage/chats(role=${currentRole}, page=${pageNumber})}" th:text="${pageNumber + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${chats.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/users/mypage/chats(role=${currentRole}, page=${chats.number + 1})}">다음</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+</body>
+</html>

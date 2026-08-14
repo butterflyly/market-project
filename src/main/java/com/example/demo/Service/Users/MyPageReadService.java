@@ -2,10 +2,15 @@ package com.example.demo.Service.Users;
 
 import com.example.demo.DTO.Chat.Response.ChatRoomSummaryResponse;
 import com.example.demo.DTO.Review.ReviewResponse;
+import com.example.demo.DTO.Users.Response.MyPageItemResponse;
 import com.example.demo.DTO.Users.Response.MyPageResponse;
 import com.example.demo.DTO.Users.Response.UserDetailResponse;
 import com.example.demo.DTO.item.Response.ItemSummaryResponse;
+import com.example.demo.Entity.Item.Item;
+import com.example.demo.Entity.Item.ItemStatus;
 import com.example.demo.Entity.Users.Users;
+import com.example.demo.Error.BusinessException;
+import com.example.demo.Repository.Item.Item.ItemRepository;
 import com.example.demo.Service.Chat.ChatRoomReadService;
 import com.example.demo.Service.Item.ItemLikeReadService;
 import com.example.demo.Service.Item.ItemReadService;
@@ -21,9 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MyPageReadService {
 
-    // 💡 마이페이지에 필요한 모든 읽기 전용 서비스들을 일렬로 주입받습니다.
     private final UserReadService userReadService;
-    private final ItemReadService itemReadService;
+    private final ItemRepository itemRepository;
     private final ItemLikeReadService itemLikeReadService;
     private final ChatRoomReadService chatRoomReadService;
     private final ReviewReadService reviewReadService;
@@ -33,14 +37,18 @@ public class MyPageReadService {
      */
     public MyPageResponse getMyPageData(String username, Pageable pageable) {
 
-        // 1. 순수 유저 정보 조회 (UserReadService 이용)
+        // 1. 순수 유저 정보 조회
         Users user = userReadService.getUserEntity(username);
         UserDetailResponse userInfo = UserDetailResponse.of(user);
 
         // 2. 상품, 찜, 채팅, 리뷰 데이터 평화롭게 가져오기 (각각의 서비스 호출)
-        Page<ItemSummaryResponse> sellingPosts = itemReadService.getItemsByUsername(username, pageable);
+        Page<MyPageItemResponse> sellingPosts =  itemRepository.findAllBySellerAndDeletedFalse(user, pageable)
+                                                        .map(MyPageItemResponse::of);
 
-        Page<ItemSummaryResponse> likedPosts = itemLikeReadService.getLikedItemsByUsername(username, pageable);
+        Page<MyPageItemResponse> boughtPosts = itemRepository.
+                findAllByBuyerUsernameAndItemStatusEqualsAndDeletedFalse(username, ItemStatus.SOLD_OUT ,pageable).map(MyPageItemResponse :: of);
+
+        Page<MyPageItemResponse> likedPosts = itemLikeReadService.getLikedItemsByUsername(username, pageable);
 
         Page<ChatRoomSummaryResponse> buyChatRooms = chatRoomReadService.getChatRooms(
                 username, "BUYER", pageable.getPageNumber(), pageable.getPageSize());
@@ -55,6 +63,7 @@ public class MyPageReadService {
         return new MyPageResponse(
                 userInfo,
                 sellingPosts,
+                boughtPosts,
                 likedPosts,
                 buyChatRooms,
                 sellChatRooms,

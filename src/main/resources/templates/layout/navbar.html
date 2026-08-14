@@ -10,6 +10,17 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ms-auto d-flex align-items-center">
 
+                <li class="nav-item me-2">
+                    <div id="weatherBadge" class="badge bg-white text-dark border shadow-sm p-2 d-flex align-items-center gap-2" style="font-size: 0.8rem; font-weight: normal;">
+                        <span id="weatherLoading" class="text-muted"><i class="bi bi-hourglass-split"></i> 날씨 정보 불러오는 중...</span>
+                        <span id="weatherContent" style="display: none;">
+                            <span class="text-danger fw-bold"><i class="bi bi-thermometer-half"></i> <span id="weatherTemp">-</span></span>
+                            <span class="text-primary ms-1"><i class="bi bi-droplet-fill"></i> <span id="weatherHumidity">-</span></span>
+                            <span class="text-info ms-1"><i class="bi bi-umbrella-fill"></i> <span id="weatherPop">-</span></span>
+                        </span>
+                    </div>
+                </li>
+
                 <li class="nav-item auth-guest" id="nav-register" sec:authorize="isAnonymous()">
                     <a class="nav-link" href="/users/register">회원가입</a>
                 </li>
@@ -54,6 +65,51 @@
     </div>
 
     <!--  로그인 상태일 때만 SSE 구독 및 알림 로직 스크립트 실행 -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchWeather();
+        });
+
+        function fetchWeather() {
+            // 브라우저 위치 접근 권한 확인
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        callWeatherApi(lat, lon);
+                    },
+                    (error) => {
+                        console.warn("⚠️ [Weather] 위치 접근 거부됨. 기본 좌표 사용.");
+                        callWeatherApi(37.5665, 126.9780); // 서울 기본 좌표
+                    }
+                );
+            } else {
+                callWeatherApi(37.5665, 126.9780);
+            }
+        }
+
+        function callWeatherApi(lat, lon) {
+            fetch(`/api/weather?lat=${lat}&lon=${lon}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data) {
+                        document.getElementById("weatherTemp").textContent = data.TMP || '-';
+                        document.getElementById("weatherHumidity").textContent = data.REH || '-';
+                        document.getElementById("weatherPop").textContent = data.POP || '-';
+
+                        document.getElementById("weatherLoading").style.display = "none";
+                        document.getElementById("weatherContent").style.display = "inline-flex";
+                    }
+                })
+                .catch(err => {
+                    console.error("❌ [Weather] 날씨 조회 실패:", err);
+                    document.getElementById("weatherLoading").textContent = "날씨 정보 조회 불가";
+                });
+        }
+    </script>
+    
     <script sec:authorize="isAuthenticated()">
         document.addEventListener("DOMContentLoaded", function () {
             console.log("🚀 [Notification] 알림 스크립트 초기화 시작");

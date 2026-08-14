@@ -27,7 +27,8 @@ public record ItemDetailResponse(
         boolean isOwner,
         boolean isLiked,
         List<ImageInfo> itemImageList,
-        ItemStatus itemStatus
+        ItemStatus itemStatus,
+        Double sellerRating
 ) {
     // 이미지 ID와 URL을 쌍으로 묶어줄 inner record
     public record ImageInfo(Long id, String url) {}
@@ -35,7 +36,7 @@ public record ItemDetailResponse(
         private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 
-        public static ItemDetailResponse of(Item item, boolean isOwner, boolean isLiked) {
+        public static ItemDetailResponse of(Item item, boolean isOwner, boolean isLiked, Double sellerRating) {
             String deletedAt = "-";
             if (item.getUpdatedAt() != null) {
                 deletedAt = item.getUpdatedAt().plusMonths(1).format(formatter);
@@ -47,6 +48,10 @@ public record ItemDetailResponse(
 
             // 정상 판매자 존재 여부 체크
             boolean hasSeller = item.hasActiveSeller();
+
+            double roundedRating = (sellerRating != null)
+                    ? Math.round(sellerRating * 10.0) / 10.0
+                    : 0.0;
 
             return new ItemDetailResponse(
                     item.getId(),
@@ -68,7 +73,8 @@ public record ItemDetailResponse(
                     isOwner,
                     isLiked,
                     images,
-                    item.getItemStatus()
+                    item.getItemStatus(),
+                    roundedRating
             );
         }
 }

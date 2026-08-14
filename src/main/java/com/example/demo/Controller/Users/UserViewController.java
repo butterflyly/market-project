@@ -1,12 +1,17 @@
 package com.example.demo.Controller.Users;
 
 import com.example.demo.DTO.Chat.Response.ChatRoomSummaryResponse;
+import com.example.demo.DTO.Review.ReviewResponse;
 import com.example.demo.DTO.Users.Request.Auth.LoginRequest;
 import com.example.demo.DTO.Users.Request.Auth.Register.UserRegisterRequest;
 import com.example.demo.DTO.Users.Response.MyPageResponse;
 import com.example.demo.DTO.item.Response.ItemSummaryResponse;
+import com.example.demo.Entity.Item.ItemLike;
+import com.example.demo.Repository.Item.ItemLike.ItemLikeRepository;
 import com.example.demo.Service.Chat.ChatRoomReadService;
+import com.example.demo.Service.Item.ItemLikeReadService;
 import com.example.demo.Service.Item.ItemReadService;
+import com.example.demo.Service.Review.ReviewReadService;
 import com.example.demo.Service.Users.MyPageReadService;
 import com.example.demo.Service.Users.UserReadService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +39,8 @@ public class UserViewController {
     private final ChatRoomReadService chatRoomReadService;
     private final ItemReadService itemReadService;
     private final MyPageReadService myPageReadService;
+    private final ItemLikeReadService itemLikeRefindByMyLikePage;
+    private final ReviewReadService reviewReadService;
 
     // 회원가입 화면
     @GetMapping("/register")
@@ -70,7 +77,7 @@ public class UserViewController {
         return "users/mypage";
     }
 
-    // 내 판매글 전체보기 페이지 (HTML 준비중)
+    // 내 판매글 전체보기
     @GetMapping("/items/my-list")
     public String getMyItemsPage(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -78,29 +85,85 @@ public class UserViewController {
             Model model) {
 
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
-
-        Page<ItemSummaryResponse> items =
-                itemReadService.getItemsByUsername(userDetails.getUsername(), pageable);
+        Page<ItemSummaryResponse> items = itemReadService.getItemsByUsername(userDetails.getUsername(), pageable);
 
         model.addAttribute("items", items);
-
+        model.addAttribute("pageTitle", "내 판매글 목록");
         return "users/my-items";
     }
 
-    // 내 채팅 전체보기 페이지 (HTML 준비중)
+    // 내 구매 내역 전체보기
+    @GetMapping("/items/my-buy-list")
+    public String getMyBuyItemsPage(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Page<ItemSummaryResponse> items = itemReadService.getBoughtItemsByUsername(userDetails.getUsername(), pageable);
+
+        model.addAttribute("items", items);
+        model.addAttribute("pageTitle", "내 구매 내역");
+        return "users/my-buy-items";
+    }
+
+    // 내 찜 목록 전체보기
+    @GetMapping("/items/my-like-list")
+    public String getMyLikeItemsPage(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Page<ItemSummaryResponse> items = itemLikeRefindByMyLikePage.getLikedItemsByUsernameList(userDetails.getUsername(), pageable);
+
+        model.addAttribute("items", items);
+        model.addAttribute("pageTitle", "내 찜 목록");
+        return "users/my-like-items";
+    }
+
+    // 내 채팅 전체보기 (구매/판매 구분)
     @GetMapping("/mypage/chats")
     public String getMyChatRooms(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(defaultValue = "BUYER") String role,
-            @RequestParam(defaultValue = "0") int page,Model model) {
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
 
-        // 2. "더보기"나 "페이지 클릭" 시 API로 데이터만 전달 (10개씩)
         Page<ChatRoomSummaryResponse> chatList =
                 chatRoomReadService.getChatRooms(userDetails.getUsername(), role, page, 10);
 
-        model.addAttribute("chats",chatList);
-
+        model.addAttribute("chats", chatList);
+        model.addAttribute("currentRole", role);
         return "users/my-chats";
+    }
+
+    // 내가 쓴 후기 전체보기
+    @GetMapping("/reviews/written")
+    public String getMyWrittenReviews(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Page<ReviewResponse> reviews = reviewReadService.getWrittenReviews(userDetails.getUsername(), pageable);
+        model.addAttribute("reviews", reviews);
+
+        return "review/my-reviews";
+    }
+
+    // 내가 받은 후기 전체보기
+    @GetMapping("/reviews/received")
+    public String getMyReceivedReviews(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Page<ReviewResponse> reviews = reviewReadService.getReceivedReviews(userDetails.getUsername(), pageable);
+        model.addAttribute("reviews", reviews);
+
+        return "review/seller-list";
     }
 
     // 회원 정보 수정 페이지 이동

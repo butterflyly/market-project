@@ -8,6 +8,7 @@ import com.example.demo.Entity.Users.Users;
 import com.example.demo.Error.BusinessException;
 import com.example.demo.Repository.Item.Item.ItemRepository;
 import com.example.demo.Repository.Item.ItemLike.ItemLikeRepository;
+import com.example.demo.Repository.Review.ReviewRepository;
 import com.example.demo.Repository.Users.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class ItemReadService {
     private final UserRepository userRepository;
     private final ItemCommandService itemCommandService;
     private final ItemLikeRepository itemLikeRepository;
+    private final ReviewRepository reviewRepository;
 
     // 리스트 조회 (Page 객체로 반환)
     public Page<ItemSummaryResponse> getList(String kw, Long categoryId, Pageable pageable, String searchType) {
@@ -34,7 +36,6 @@ public class ItemReadService {
         return itemRepository.findAllByKeyWord(kw, categoryId, pageable ,searchType)
                 .map(ItemSummaryResponse::from);
     }
-
 
     // 특정 유저가 작성한 게시글만 페이징 조회
     public Page<ItemSummaryResponse> getItemsByUsername(String username, Pageable pageable) {
@@ -48,8 +49,19 @@ public class ItemReadService {
                 .map(ItemSummaryResponse::from);
     }
 
+    // 특정 유저가 구매한 상품 페이징
+    public Page<ItemSummaryResponse> getBoughtItemsByUsername(String username, Pageable pageable) {
+
+        // 1. 유저 존재 여부 확인 (또는 닉네임 등으로 조회)
+        Users user = userRepository.findByUsernameAndDeletedFalse(username).
+                orElseThrow(() -> new BusinessException("유저가 존재하지 않습니다."));
+
+        // 2. 해당 유저의 게시글만 조회
+        return itemRepository.findAllByBuyerUsernameAndItemStatusEqualsAndDeletedFalse(user.getUsername(),ItemStatus.SOLD_OUT,pageable)
+                .map(ItemSummaryResponse::from);
+    }
+
     // 엔티티 조회
-    // 상세 조회
     public Item getItemEntity(Long id) {
         return itemRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new BusinessException("존재하지 않는 게시글입니다."));
@@ -81,7 +93,14 @@ public class ItemReadService {
             isLiked = itemLikeRepository.existsByItemAndUsersUsername(item, currentUsername);
         }
 
-        return ItemDetailResponse.of(item, isOwner,isLiked);
+        // 1. 조회한 별점 결과를 변수에 담습니다.
+        Double sellerRating = 0.0;
+
+        if (item.hasActiveSeller()) {
+            sellerRating = reviewRepository.getAverageRatingBySellerId(item.getSeller().getId());
+        }
+
+        return ItemDetailResponse.of(item, isOwner,isLiked , sellerRating);
     }
 
 
@@ -108,7 +127,7 @@ public class ItemReadService {
         Item item = itemRepository.findSoftDeletedItemDetailById(id)
                 .orElseThrow(() -> new BusinessException("존재하지 않거나 이미 영구 삭제된 게시글입니다."));
 
-        return ItemDetailResponse.of(item, false, false);
+        return ItemDetailResponse.of(item, false, false,0.0);
     }
 
     public long getDeletedItemCount() {

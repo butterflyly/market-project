@@ -32,9 +32,9 @@
                     <label class="form-label fw-bold">기존 등록된 이미지 <span class="text-muted fw-normal fs-7">(클릭 시 삭제)</span></label>
                     <div class="d-flex flex-wrap gap-2">
                         <th:block th:each="img : ${item.itemImageList}">
-                            <div class="position-relative existing-image-card rounded border"
+                            <div class="position-relative existing-image-card rounded border btn-remove-img"
                                  th:data-image-id="${img.id}"
-                                 th:onclick="'removeExistingImage(' + ${img.id} + ', this)'">
+                                 style="cursor: pointer;">
 
                                 <img th:src="${img.url}" class="w-100 h-100" style="object-fit: cover;">
 

@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const likeBtn = document.getElementById('likeBtn');
     const itemId = document.getElementById('itemId').value;
 
+
     if (!itemId) {
         console.error("게시글 정보를 찾을 수 없습니다.");
         return;

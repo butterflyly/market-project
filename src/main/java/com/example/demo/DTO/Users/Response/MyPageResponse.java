@@ -8,8 +8,9 @@ import org.springframework.data.domain.Page;
 
 public record MyPageResponse (
         UserDetailResponse userInfo, // 기존 DTO 재사용
-        Page<ItemSummaryResponse> sellingPosts,
-        Page<ItemSummaryResponse> likedPosts,
+        Page<MyPageItemResponse> sellingPosts,
+        Page<MyPageItemResponse> boughtPosts,
+        Page<MyPageItemResponse> likedPosts,
         Page<ChatRoomSummaryResponse> buyChatRooms,
         Page<ChatRoomSummaryResponse> sellChatRooms,
 

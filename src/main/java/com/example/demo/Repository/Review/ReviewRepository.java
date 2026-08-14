@@ -35,7 +35,6 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
     void transferReceiverToGhost(@Param("expiredUserIds") List<Long> expiredUserIds,
                                  @Param("ghostUser") Users ghostUser);
 
-    // 판매자의 평균 평점 계산 (리뷰가 없으면 null 반환하므로 Double 래퍼타입 사용)
-    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.receiver = :receiver")
-    Double findAverageRatingByReceiver(@Param("receiver") Users receiver);
+    @Query("SELECT COALESCE(AVG(r.rating), 0.0) FROM Review r WHERE r.receiver.id = :sellerId")
+    Double getAverageRatingBySellerId(@Param("sellerId") Long sellerId);
 }

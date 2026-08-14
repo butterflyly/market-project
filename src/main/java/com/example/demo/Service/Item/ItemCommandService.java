@@ -252,7 +252,8 @@ public class ItemCommandService {
         item.changeStatus(status, buyer);
 
         // 3. 상태 변경에 따른 알림 이벤트 발행
-        String targetUrl = "/items/detail/" + item.getId();
+        String targetUrl = "/users/mypage?reviewModal=true&itemId=" + item.getId();
+
 
         // [이벤트 1] 찜한 유저 전체 대상 - 상태 변경 알림 (RESERVED, SOLD_OUT, SELLING 모두 발송)
         eventPublisher.publishEvent(new ItemStatusChangedEvent(item, targetUrl));

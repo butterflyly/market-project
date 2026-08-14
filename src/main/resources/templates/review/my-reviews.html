@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>내 거래 후기 관리</title>
+</head>
+<body>
+<div layout:fragment="content" class="container my-5" style="max-width: 750px;">
+
+    <h4 class="fw-bold mb-4"><i class="bi bi-journal-check me-2"></i>내 거래 후기 관리</h4>
+
+    <!-- 탭 메뉴 (내가 작성한 후기 / 내가 받은 후기) -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link fw-semibold" th:classappend="${type == 'written'} ? 'active'" th:href="@{/reviews/my/written}">
+                내가 작성한 후기 <span class="badge bg-primary rounded-pill ms-1" th:text="${reviews.totalElements}">0</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link fw-semibold" th:classappend="${type == 'received'} ? 'active'" th:href="@{/reviews/my/received}">
+                내가 받은 후기 <span class="badge bg-success rounded-pill ms-1" th:text="${reviews.totalElements}">0</span>
+            </a>
+        </li>
+    </ul>
+
+    <!-- 리뷰 리스트 -->
+    <div class="list-group gap-3" th:if="${!reviews.isEmpty()}">
+        <div class="list-group-item rounded border shadow-sm p-3"
+             th:each="review : ${reviews.content}"
+             th:data-review-id="${review.id}">
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <span class="text-warning fw-bold" th:text="${'⭐'.repeat(review.rating)}">⭐⭐⭐</span>
+                    <!-- 작성한 후기 탭이면 '받은 사람', 받은 후기 탭이면 '작성자' 닉네임 표시 -->
+                    <small class="text-muted ms-2" th:text="${type == 'written' ? '상대방: ' + review.writerNickname : '작성자: ' + review.writerNickname}">닉네임</small>
+                </div>
+                <small class="text-muted" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}">2026-05-29</small>
+            </div>
+
+            <!-- 본문 내용 -->
+            <p class="mb-2 text-secondary review-content-text" style="white-space: pre-wrap;" th:text="${review.content}">정말 친절하시고 물건 상태도 좋습니다!</p>
+
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                <a th:href="@{|/items/detail/${review.itemId}|}" class="badge bg-light text-dark text-decoration-none border">
+                    <i class="bi bi-box-seam me-1"></i><span th:text="${review.itemTitle}">거래 상품명</span>
+                </a>
+
+
+                <div th:if="${type == 'written'}" class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-secondary btn-edit-review">
+                        <i class="bi bi-pencil-square"></i> 수정
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-delete-review">
+                        <i class="bi bi-trash"></i> 삭제
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 빈 상태 표시 -->
+    <div th:if="${reviews.isEmpty()}" class="py-5 text-center text-muted card border shadow-sm">
+        <i class="bi bi-inbox fs-1 mb-2 text-secondary"></i>
+        <span th:text="${type == 'written' ? '아직 작성한 거래 후기가 없습니다.' : '아직 받은 거래 후기가 없습니다.'}">후기가 없습니다.</span>
+    </div>
+
+    <!-- 페이징 처리 영역 -->
+    <div th:if="${reviews.totalPages > 1}" class="d-flex justify-content-center mt-4">
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
+                    <a class="page-link" th:href="@{/reviews/my/{type}(type=${type}, page=${reviews.number - 1})}">이전</a>
+                </li>
+                <li class="page-item"
+                    th:each="pageNumber : ${#numbers.sequence(0, reviews.totalPages - 1)}"
+                    th:classappend="${pageNumber == reviews.number} ? 'active'">
+                    <a class="page-link" th:href="@{/reviews/my/{type}(type=${type}, page=${pageNumber})}" th:text="${pageNumber + 1}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
+                    <a class="page-link" th:href="@{/reviews/my/{type}(type=${type}, page=${pageNumber + 1})}">다음</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- 리뷰 수정 모달 -->
+    <div class="modal fade" id="reviewEditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">거래 후기 수정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editModalRating" class="form-label fw-semibold">별점</label>
+                        <select class="form-select" id="editModalRating">
+                            <option value="5">⭐⭐⭐⭐⭐ (5점 - 최고예요)</option>
+                            <option value="4">⭐⭐⭐⭐ (4점 - 좋아요)</option>
+                            <option value="3">⭐⭐⭐ (3점 - 보통이에요)</option>
+                            <option value="2">⭐⭐ (2점 - 별로예요)</option>
+                            <option value="1">⭐ (1점 - 비추해요)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editModalContent" class="form-label fw-semibold">후기 내용</label>
+                        <textarea class="form-textarea form-control" id="editModalContent" rows="4" placeholder="수정할 후기 내용을 입력해 주세요."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary fw-semibold" id="submitEditReviewBtn">수정 완료</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<th:block layout:fragment="script">
+    <script src="/js/review/review_management.js"></script>
+</th:block>
+</body>
+</html>

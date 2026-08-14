@@ -16,7 +16,6 @@ public class AdminCommandController {
 
     private final ReportCommandService reportService;
     private final UserCommandService userCommandService;
-    private final ItemCommandService itemCommandService;
 
     /**
      *  액션 1: 사기꾼 핵버튼 (자바 전용 뷰 리다이렉트 버전)

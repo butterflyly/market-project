@@ -96,14 +96,25 @@
                     </div>
 
                     <div class="ms-3 dropdown">
-                        <h5 class="mb-0 fw-bold dropdown-toggle text-dark"
-                            id="sellerMenuButton"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                            style="cursor: pointer; user-select: none;"
-                            th:text="${item.sellerDisplayName}">
-                            판매자 닉네임
-                        </h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="mb-0 fw-bold dropdown-toggle text-dark"
+                                id="sellerMenuButton"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                style="cursor: pointer; user-select: none;"
+                                th:text="${item.sellerDisplayName}">
+                                판매자 닉네임
+                            </h5>
+
+                              <!-- 판매자 평균 별점 요약 태그 -->
+                             <span class="badge bg-light text-dark border align-middle fw-semibold" style="font-size: 0.8rem;">
+                                <i class="bi bi-star-fill text-warning me-1"></i>
+                                <span th:text="${#numbers.formatDecimal(item.sellerRating, 1, 1)}">4.8</span>
+                            </span>
+                        </div>
+
+
+
                         <small class="text-muted d-block" style="margin-top: 2px;">인증된 판매자 (클릭 시 메뉴 열림)</small>
 
                         <ul class="dropdown-menu shadow border-0 mt-2" aria-labelledby="sellerMenuButton">

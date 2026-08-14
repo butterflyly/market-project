@@ -17,7 +17,6 @@ public class ReviewApiController {
 
     private final ReviewCommandService reviewCommandService;
 
-
     @PostMapping("/item/{itemId}")
     public ResponseEntity<CommonResponse<?>> createReview(
             @PathVariable Long itemId,

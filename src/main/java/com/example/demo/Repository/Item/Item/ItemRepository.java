@@ -1,6 +1,8 @@
 package com.example.demo.Repository.Item.Item;
 
+import com.example.demo.DTO.item.Response.ItemSummaryResponse;
 import com.example.demo.Entity.Item.Item;
+import com.example.demo.Entity.Item.ItemStatus;
 import com.example.demo.Entity.Users.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,4 +40,9 @@ public interface ItemRepository extends JpaRepository<Item,Long> , ItemRepositor
                                @Param("ghostUser") Users ghostUser);
 
 
+    Page<Item> findAllByBuyerUsernameAndItemStatusEqualsAndDeletedFalse(
+            String username,
+            ItemStatus status,
+            Pageable pageable
+    );
 }

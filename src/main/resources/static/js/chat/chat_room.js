@@ -298,8 +298,9 @@ function renderMessage(msg) {
 
     let contentHtml = '';
     if (msg.type === 'IMAGE') {
-        contentHtml = `<img src="${msg.content}" class="chat-img-content"
-        style="max-width: 200px; border-radius: 10px; cursor: pointer;" onclick="window.open(this.src)">`;
+
+        contentHtml = `<img src="${msg.content}"
+         class="chat-img-content" style="max-width: 200px; border-radius: 10px; cursor: pointer;" alt="채팅 이미지">`;
     } else {
         contentHtml = `<div class="message-content">${msg.content}</div>`;
     }

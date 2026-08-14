@@ -18,7 +18,8 @@
         <a sec:authorize="isAuthenticated()" th:if="${user.warningCount < 2}"
            th:href="@{/items/create(categoryId=${currentCategoryId})}"
            class="btn btn-primary">새 상품 등록</a>
-        <button th:if="${user.warningCount >= 2}" onclick="alert('경고 2회 누적으로 인해 게시글 작성이 제한되었습니다.')" class="btn btn-secondary" disabled>
+        <button th:if="${user.warningCount >= 2}"
+                class="btn btn-secondary disabled btn-restricted-write">
             글쓰기 (제한됨)
         </button>
 
@@ -171,6 +172,14 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/ko.js"></script>
     <script>
+
+        // 버튼이 상단 영역에 있으므로 문서 전체 또는 상단 바 부모 요소에 이벤트 위임
+        document.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('btn-restricted-write')) {
+                alert('경고 2회 누적으로 인해 게시글 작성이 제한되었습니다.');
+            }
+        });
+
         dayjs.extend(dayjs_plugin_relativeTime);
         dayjs.locale('ko');
 

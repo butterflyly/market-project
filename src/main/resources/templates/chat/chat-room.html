@@ -68,8 +68,8 @@
                         <p class="mb-1 small fw-bold text-primary" th:text="${msg.senderNickname}">상대방 닉네임</p>
 
                         <div th:if="${msg.type == 'TALK'}" class="message-content" th:text="${msg.content}">내용</div>
-                        <img th:if="${msg.type == 'IMAGE'}" th:src="${msg.content}" class="chat-img-content" style="max-width: 200px; border-radius: 10px; cursor: pointer;" onclick="window.open(this.src)">
-
+                        <img th:if="${msg.type == 'IMAGE'}" th:src="${msg.content}"
+                             class="chat-img-content" style="max-width: 200px; border-radius: 10px; cursor: pointer;" alt="채팅 이미지">
                         <small class="chat-time text-muted"
                                th:text="${#temporals.format(msg.createdAt, 'a h:mm')}">오후 2:02</small>
                     </div>
@@ -79,8 +79,8 @@
                 <div th:if="${msg.isMine && msg.type != 'NOTICE'}" class="d-flex mb-3 justify-content-end w-100">
                     <div class="chat-bubble shadow-sm mine-bubble">
                         <div th:if="${msg.type == 'TALK'}" class="message-content" th:text="${msg.content}">내용</div>
-                        <img th:if="${msg.type == 'IMAGE'}" th:src="${msg.content}" class="chat-img-content" style="max-width: 200px; border-radius: 10px; cursor: pointer;" onclick="window.open(this.src)">
-
+                        <img th:if="${msg.type == 'IMAGE'}" th:src="${msg.content}"
+                             class="chat-img-content" style="max-width: 200px; border-radius: 10px; cursor: pointer;" alt="채팅 이미지">
                         <div class="d-flex align-items-center justify-content-end gap-1 mt-1">
                             <!-- 상대방이 안 읽었을 때(!isRead)만 숫자 1 표시 -->
                             <small th:if="${!msg.isRead}" class="unread-count text-warning fw-bold" style="font-size: 0.7rem;">1</small>

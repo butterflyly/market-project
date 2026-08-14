@@ -1,5 +1,6 @@
 package com.example.demo.Entity.Item;
 
+import com.example.demo.Entity.Review.Review;
 import com.example.demo.Entity.Users.Users;
 import com.example.demo.Error.BusinessException;
 import jakarta.persistence.*;
@@ -70,6 +71,10 @@ public class Item {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id") // 외래키 컬럼 추가 (처음엔 null 허용)
     private Users buyer;
+
+    @OneToOne(fetch = FetchType.LAZY) // 상품 하나당 리뷰 하나!
+    @JoinColumn(name = "review_id")
+    private Review review;
     
     // 관리자 전용
     private boolean isPermanentPreserved = false;
@@ -152,7 +157,7 @@ public class Item {
         }
     }
 
-    // 상품 이미지
+    // 상품 처음 이미지
     public String getThumbnailUrl() {
         return this.itemImageList.stream()
                 .findFirst()

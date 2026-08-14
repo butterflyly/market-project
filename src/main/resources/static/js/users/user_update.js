@@ -26,43 +26,57 @@ function previewProfileImage(input) {
     }
 }
 
-// 프로필 수정 요청 제출 로직
-async function submitUpdate() {
-     if (typeof hideErrors === 'function') hideErrors();
+// [리팩토링] DOM 로드 완료 후 이벤트 바인딩
+document.addEventListener('DOMContentLoaded', function() {
 
-     const nickname = document.getElementById('nickname').value.trim();
-     const fileInput = document.getElementById('profileImage');
+    const updateForm = document.getElementById('updateForm');
 
-     const clientErrors = [];
-     if (!nickname) {
-         clientErrors.push("닉네임을 입력해주세요.");
-     } else if (nickname.length < 2 || nickname.length > 10) {
-         clientErrors.push("닉네임은 2자 이상 10자 이하로 입력해주세요.");
-     }
+    if (updateForm) {
+        // 인라인 onclick 대신 폼의 submit 이벤트를 인터셉트
+        updateForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // 폼 제출로 인한 페이지 새로고침 방지
 
-     if (clientErrors.length > 0) {
-         renderErrors(clientErrors);
-         return;
-     }
+            if (typeof hideErrors === 'function') hideErrors();
 
-     const formData = new FormData();
-     formData.append('nickname', nickname);
+            const nickname = document.getElementById('nickname').value.trim();
 
-     if (fileInput.files.length > 0) {
-         formData.append('profileImage', fileInput.files[0]);
-     }
+            // 기존 코드에 명시되었던 profileImage 인풋 요소를 안전하게 가져옴
+            const fileInput = document.getElementById('profileImage');
 
-    try {
-        const result = await Api.formRequest("/api/users/update", formData, 'PUT');
+            // 클라이언트 사이드 유효성 검사
+            const clientErrors = [];
+            if (!nickname) {
+                clientErrors.push("닉네임을 입력해주세요.");
+            } else if (nickname.length < 2 || nickname.length > 10) {
+                clientErrors.push("닉네임은 2자 이상 10자 이하로 입력해주세요.");
+            }
 
-        //  이전 단계에서 바꾼 백엔드 표준 규격(isAvailable)에 맞춰 조건문 수정
-        if (result && result.isAvailable) {
-            alert(result.message || "프로필이 수정되었습니다.");
-            window.location.href = "/users/mypage";
-        } else {
-            renderErrors([result.message || "수정에 실패했습니다."]);
-        }
-    } catch (error) {
-        renderErrors(error.message.split("\n"));
+            if (clientErrors.length > 0) {
+                renderErrors(clientErrors);
+                return;
+            }
+
+            // 전송 데이터 구성
+            const formData = new FormData();
+            formData.append('nickname', nickname);
+
+            // 파일 인풋 요소가 존재하고 파일이 선택되었을 때만 추가
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                formData.append('profileImage', fileInput.files[0]);
+            }
+
+            try {
+                const result = await Api.formRequest("/api/users/update", formData, 'PUT');
+
+                if (result && result.isAvailable) {
+                    alert(result.message || "프로필이 수정되었습니다.");
+                    window.location.href = "/users/mypage";
+                } else {
+                    renderErrors([result.message || "수정에 실패했습니다."]);
+                }
+            } catch (error) {
+                renderErrors(error.message.split("\n"));
+            }
+        });
     }
-}
+});

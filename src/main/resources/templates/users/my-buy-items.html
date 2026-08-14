@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">내 구매 내역</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+<div class="container py-5" style="max-width: 900px;">
+    <!-- 상단 헤더 영역 -->
+    <div class="d-flex align-items-center mb-4">
+        <a th:href="@{/users/mypage}" class="btn btn-outline-secondary btn-sm me-3">
+            <i class="bi bi-arrow-left"></i> 마이페이지
+        </a>
+        <h4 class="mb-0 fw-bold" th:text="${pageTitle}">내 구매 내역</h4>
+    </div>
+
+    <!-- 구매 상품 목록 -->
+    <div class="row row-cols-1 row-cols-md-2 g-3" th:if="${items != null and !items.isEmpty()}">
+        <div class="col" th:each="item : ${items.content}">
+            <a th:href="@{/items/detail/{id}(id=${item.id})}" class="text-decoration-none text-dark">
+                <div class="card h-100 border shadow-sm rounded p-2 flex-row align-items-center">
+                    <img th:src="${item.imageUrl != null ? item.imageUrl : '/images/default-item.png'}"
+                         class="rounded flex-shrink-0"
+                         style="width: 90px; height: 90px; object-fit: cover;"
+                         alt="구매 상품 이미지">
+                    <div class="ms-3 overflow-hidden">
+                        <h6 class="card-title text-truncate mb-1 fw-bold" th:text="${item.title}">상품 제목</h6>
+                        <p class="card-text text-primary fw-bold mb-1" th:text="|${#numbers.formatInteger(item.price, 0, 'COMMA')}원|">0원</p>
+                        <small class="text-muted" th:text="${item.createdAt}">2026-08-05</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 구매 내역 없음 -->
+    <div th:if="${items == null or items.isEmpty()}" class="card border-0 shadow-sm p-5 text-center text-muted">
+        <i class="bi bi-bag-x fs-1 d-block mb-2"></i>
+        구매한 상품이 없습니다.
+    </div>
+
+    <!-- 페이징 네비게이션 -->
+    <nav class="mt-4" th:if="${items != null and items.totalPages > 1}">
+        <ul class="pagination justify-content-center">
+            <!-- 이전 페이지 버튼 -->
+            <li class="page-item" th:classappend="${items.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/items/my-buy-list(page=${items.number - 1})}">이전</a>
+            </li>
+
+            <!-- 페이지 번호 목록 -->
+            <li class="page-item" th:each="pageNumber : ${#numbers.sequence(0, items.totalPages - 1)}"
+                th:classappend="${pageNumber == items.number} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/items/my-buy-list(page=${pageNumber})}"
+                   th:text="${pageNumber + 1}">1</a>
+            </li>
+
+            <!-- 다음 페이지 버튼 -->
+            <li class="page-item" th:classappend="${items.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/items/my-buy-list(page=${items.number + 1})}">다음</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+</body>
+</html>
