@@ -99,11 +99,11 @@ public class UserReadService {
     }
 
 
-
     /**
      *  탭 필터(BLACK, DELETED, ALL)와 검색어를 기반으로 타겟 유저 리스트 반환
      */
     public Page<AdminUserResponse> getTargetUserList(String filterType, String keyword, Pageable pageable) {
+
         // 혹시 모를 Null 방어로 기본값 ALL 세팅
         String filter = (filterType == null || filterType.isBlank()) ? "ALL" : filterType.toUpperCase();
         return userRepository.findAdminTargetUsers(filter, keyword, pageable)
@@ -123,7 +123,6 @@ public class UserReadService {
         else {
             throw new BusinessException("해당 유저는 존재하지 않습니다");
         }
-
     }
 
     public long getBlackUserCount() {

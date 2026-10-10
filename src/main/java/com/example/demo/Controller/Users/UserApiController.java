@@ -50,7 +50,6 @@ public class UserApiController {
     private final RedisTemplate<String, Object> redisTemplate;
     private final CookieUtil cookieUtil;
 
-
     /*
      아이디 중복체크
     */

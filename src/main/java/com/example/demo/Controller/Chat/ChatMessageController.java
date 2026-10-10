@@ -36,8 +36,8 @@ public class ChatMessageController {
 
         // 구독자들에게 메시지 브로드캐스팅
         messagingTemplate.convertAndSend("/sub/chat/room/" + request.roomId(), savedMessage);
-    }
 
+    }
 
     /**
      *  [추가] 실시간 읽음(READ) 이벤트 처리

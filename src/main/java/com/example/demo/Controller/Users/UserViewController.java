@@ -6,8 +6,6 @@ import com.example.demo.DTO.Users.Request.Auth.LoginRequest;
 import com.example.demo.DTO.Users.Request.Auth.Register.UserRegisterRequest;
 import com.example.demo.DTO.Users.Response.MyPageResponse;
 import com.example.demo.DTO.item.Response.ItemSummaryResponse;
-import com.example.demo.Entity.Item.ItemLike;
-import com.example.demo.Repository.Item.ItemLike.ItemLikeRepository;
 import com.example.demo.Service.Chat.ChatRoomReadService;
 import com.example.demo.Service.Item.ItemLikeReadService;
 import com.example.demo.Service.Item.ItemReadService;
@@ -27,7 +25,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 
 @Controller
 @RequiredArgsConstructor
@@ -47,7 +44,7 @@ public class UserViewController {
     public String RegisterView(Model model) {
 
         model.addAttribute("registerForm" , new UserRegisterRequest("","","",
-                "","",null,""));
+                "","",null));
         return "users/register";
     }
 

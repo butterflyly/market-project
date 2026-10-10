@@ -158,7 +158,7 @@ function initWebSocket(roomId) {
         }
     });
 
-    // ⭐️ 중요: 서버와의 연결이 완전히 완료된 후 실행되는 콜백 함수
+    // 중요: 서버와의 연결이 완전히 완료된 후 실행되는 콜백 함수
     stompClient.onConnect = function (frame) {
         console.log('✅ 웹소켓 연결 성공!');
 

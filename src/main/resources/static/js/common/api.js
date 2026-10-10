@@ -1,5 +1,4 @@
 
-
 const Api= {
   //  JSON 전용 요청
       async postRequest(url, data = null, method = "POST") {
@@ -24,7 +23,7 @@ const Api= {
                headers: {
                    ...(token && { "Authorization": `Bearer ${token}` })
                },
-               body: formData, // FormData는 stringify 하지 않습니다.
+               body: formData,
                credentials: "include",
            };
            return await this._handleResponse(url, options);

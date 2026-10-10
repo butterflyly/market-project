@@ -66,7 +66,8 @@ public class Users {
 
     // 생성자에만 Builder 적용
     @Builder
-    private Users(String username,
+    private Users(Long id,
+                  String username,
                   String password,
                   String nickname,
                   String email,
@@ -74,6 +75,7 @@ public class Users {
                   LocalDateTime createdAt,String profileUrl
                     ,String providers,String providerIds
     ) {
+        this.id = id;
 
         this.username = username;
         this.password = password;

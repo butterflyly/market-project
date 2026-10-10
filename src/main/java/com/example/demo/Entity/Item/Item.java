@@ -50,6 +50,7 @@ public class Item {
     @Column(nullable = false, name = "is_deleted")
     private boolean deleted = false; // 디폴트 false
 
+    @Builder.Default
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemImage> itemImageList = new ArrayList<>();
 
@@ -57,10 +58,12 @@ public class Item {
     @Builder.Default
     private int views = 0;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ItemStatus itemStatus = ItemStatus.ON_SALE; // 기본값 직접 대입!
 
+    @Builder.Default
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemLike> itemLike = new ArrayList<>();
 
@@ -77,6 +80,7 @@ public class Item {
     private Review review;
     
     // 관리자 전용
+    @Builder.Default
     private boolean isPermanentPreserved = false;
 
     public boolean hasActiveSeller() {

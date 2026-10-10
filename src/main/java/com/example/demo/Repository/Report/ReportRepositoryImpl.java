@@ -49,5 +49,4 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom{
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
 
     }
-
 }

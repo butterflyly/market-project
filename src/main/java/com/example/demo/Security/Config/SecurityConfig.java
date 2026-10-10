@@ -86,7 +86,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/users/update",
                                 "/api/users/update-password",
-                                "/api/users/delete"
+                                "/api/users/delete",
+                                "/api/users/logout"
                         ).authenticated()
 
                         .requestMatchers(

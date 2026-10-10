@@ -47,6 +47,4 @@ public class ReportViewService {
         return reportRepository.countByStatus(PENDING);
     }
 
-
-
 }

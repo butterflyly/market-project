@@ -49,7 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 alert(result.message);
 
-
                 const roomId = result.data;
                 window.location.href = `/chat/room/${roomId}`;
             }
@@ -77,7 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
          document.getElementById("buyerModalCloseBtn")?.addEventListener("click", () => {
              statusSelect.value = previousStatus;
          });
-
 
          // 최종 안전망 (아무도 안 고르고 모달 닫았을 때 원래 상태로 원복)
          buyerModalEl?.addEventListener("hidden.bs.modal", () => {

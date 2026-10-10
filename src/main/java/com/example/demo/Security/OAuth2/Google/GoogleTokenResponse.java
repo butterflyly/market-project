@@ -1,14 +1,20 @@
 package com.example.demo.Security.OAuth2.Google;
 
-public class GoogleTokenResponse {
-    private String access_token;
-    private String token_type;
-    private int expires_in;
-    private String refresh_token;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
-    // getter methods
-    public String getAccessToken() { return access_token; }
-    public String getTokenType() { return token_type; }
-    public int getExpiresIn() { return expires_in; }
-    public String getRefreshToken() { return refresh_token; }
+@Getter
+public class GoogleTokenResponse {
+
+    @JsonProperty("access_token")
+    private String accessToken;
+
+    @JsonProperty("token_type")
+    private String tokenType;
+
+    @JsonProperty("expires_in")
+    private int expiresIn;
+
+    @JsonProperty("refresh_token")
+    private String refreshToken;
 }

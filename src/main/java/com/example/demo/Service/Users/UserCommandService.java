@@ -21,15 +21,13 @@ import com.example.demo.Security.JWT.JwtProvider;
 import com.example.demo.Security.JWT.JwtToken;
 import com.example.demo.Service.Chat.ChatRoomCommandService;
 import com.example.demo.Util.CookieUtil;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseCookie;
-import org.springframework.mail.javamail.JavaMailSender;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -168,7 +166,6 @@ public class UserCommandService {
         return value != null && value.equals("true");
     }
 
-
     /*
      * 로그인
      */
@@ -287,6 +284,7 @@ public class UserCommandService {
     }
 
     public void restoreBlackUser(Long id) {
+
         Users user = userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("존재하지 않는 회원입니다."));
         user.changeRole(UserRole.NORMAL);
@@ -303,16 +301,17 @@ public class UserCommandService {
        mailSenderUtil.sendRestoreNotice(user.getEmail());
     }
 
-
     /**
      *  [어드민] 유저 데이터 1달 뒤 자동 영구삭제 제동(보존/해제) 토글
      */
     public void toggleUserPreservation(Long userId) {
+
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException("존재하지 않는 회원입니다."));
 
         user.togglePermanentPreserve(); // 더티 체킹으로 자동 update
     }
+
     // 아이디 찾기 메일 발송
     @Transactional(readOnly = true)
     public void sendFindUsernameEmail(String email) {
@@ -430,7 +429,5 @@ public class UserCommandService {
         // 3. if (user.getWarningCount() >= 2) -> user.updateRole(UserRole.BLACK);
         // 4. 알림 발송 로직 호출
     }
-
-
 
 }

@@ -6,6 +6,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface UserRepositoryCustom {
 
-
     Page<Users> findAdminTargetUsers(String filterType, String keyword, Pageable pageable);
 }

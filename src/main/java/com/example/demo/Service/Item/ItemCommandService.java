@@ -21,7 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -36,9 +40,7 @@ public class ItemCommandService {
     private final RedisTemplate<String, String> redisTemplate;
     private final ApplicationEventPublisher eventPublisher; // 스프링 내장 확성기
 
-
     private static final int MAX_IMAGES = 5;
-
 
     /**
      *  Command 서비스 전용 엔티티 조회 및 예외 처리 메서드
@@ -79,7 +81,6 @@ public class ItemCommandService {
 
         // 이미지 엔티티 및 실제 데이터 저장
         itemImageService.saveImages(item,form.images());
-
     }
 
     /**
@@ -176,43 +177,63 @@ public class ItemCommandService {
  }
  ======================================================================= */
 
-    // 조회수 로직
     public void updateViews(Long id, HttpServletRequest request) {
-
-        // 1. 유저의 IP 주소 가져오기
         String clientIp = getClientIp(request);
 
-        // 2. Redis Key 생성 (예: item:views:12)
-        String redisKey = "item:views:" + id;
+        // 1. IP 개인정보 보호를 위한 해싱 (SHA-256)
+        String hashedIp = hashIp(clientIp);
 
-        // 3. Redis Set에 IP 추가 시도
-        // SADD 명령어는 데이터가 처음 들어갈 때만 1L을 반환합니다.
-        Long addedCount = redisTemplate.opsForSet().add(redisKey, clientIp);
+        // 2. 날짜별로 Key를 분리하여 TTL 리셋 문제 해결 (예: item:views:12:2026-09-04)
+        String today = LocalDate.now().toString();
+        String redisKey = "item:views:" + id + ":" + today;
 
-        // 4. 처음 방문한 IP라면 DB 조회수 증가 및 만료 시간 설정
+        // 3. Redis Set에 해시된 IP 추가
+        Long addedCount = redisTemplate.opsForSet().add(redisKey, hashedIp);
+
         if (addedCount != null && addedCount == 1L) {
-            itemRepository.updateView(id); // DB 조회수 1 증가 쿼리 실행
+            // 4. DB 조회수 증가
+            itemRepository.updateView(id);
 
-            // 이 기록(Set)이 하루(24시간) 동안만 유지되도록 설정
+            // 5. 해당 날짜 키에 대한 만료 시간 설정 (하루 뒤 자동 삭제)
             redisTemplate.expire(redisKey, Duration.ofDays(1));
         }
     }
 
-    /**
-     * 프록시 서버나 로드 밸런서를 거쳐도 실제 클라이언트 IP를 정확히 가져오는 메서드
-     */
     private String getClientIp(HttpServletRequest request) {
+
         String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+
+        // XFF 헤더에 여러 IP가 거쳐간 경우, 첫 번째 IP가 원본 클라이언트 IP
+        if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+            if (ip.contains(",")) {
+                ip = ip.split(",")[0].trim();
+            }
+        } else {
             ip = request.getHeader("Proxy-Client-IP");
         }
+
         if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr(); // 가장 기본적인 IP 가져오기
+            ip = request.getRemoteAddr();
         }
         return ip;
+    }
+
+    private String hashIp(String ip) {
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(ip.getBytes(StandardCharsets.UTF_8));
+
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 알고리즘을 찾을 수 없습니다.", e);
+        }
     }
 
 

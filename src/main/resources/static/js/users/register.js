@@ -307,7 +307,5 @@ async function submitRegister() {
           errorContainer.classList.remove("d-none"); // 숨겨진 에러창 등장
           window.scrollTo(0, 0); // 화면을 상단으로 올려 에러를 인지시킴
        }
-
    }
-
 }

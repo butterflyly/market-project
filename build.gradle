@@ -38,6 +38,10 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
 
+	// 테스트 코드용 Lombok
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
 	// 1. 스프링 부트의 모든 핵심 테스트 도구 (JUnit5, Mockito, AssertJ 등) 통합본
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 

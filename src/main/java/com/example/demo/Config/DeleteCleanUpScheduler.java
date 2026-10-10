@@ -54,7 +54,6 @@ public class DeleteCleanUpScheduler {
         }
 
         try {
-
             // DB에 직접 주입해 둔 0번 고스트 유저 조회
             Long ghostUserId = 0L;
             Users ghostUser = userRepository.findById(ghostUserId)

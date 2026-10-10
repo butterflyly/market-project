@@ -60,6 +60,10 @@ public class ItemImageService {
         // Repository의 수정한 메서드명(ByImageId)에 맞춰 호출
         List<ItemImage> images = itemImageRepository.findByImageIdInAndItem(deleteImageIds, item);
 
+        if (images.size() != deleteImageIds.size()) {
+            throw new BusinessException("해당 상품에 속하지 않은 고유 번호가 삭제 요청에 포함되어 있습니다.");
+        }
+
         // 물리적 파일 디스크에서 삭제
         images.forEach(img -> fileStorageService.delete(img.getUrl(), ITEM_SUB_FOLDER, ITEM_URL_PREFIX));
 

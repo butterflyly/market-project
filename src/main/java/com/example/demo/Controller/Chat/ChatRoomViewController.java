@@ -20,23 +20,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ChatRoomViewController {
 
-    private final ChatRoomReadService chatRoomReadService;
-    private final ChatMessageCommandService chatMessageCommandService;
-    private final SimpMessagingTemplate messagingTemplate;
-
     @GetMapping("/{roomId}")
-    public String chatRoomDetail(@PathVariable Long roomId, Model model, @AuthenticationPrincipal UserDetails userDetails)
-    {
-        ChatRoomDetailResponse chatRoom = chatRoomReadService.getChatRoomDetail(roomId, userDetails.getUsername());
-
-        // 1. 채팅방 들어왔으니 읽음처리
-        chatMessageCommandService.markMessagesAsRead(roomId, userDetails.getUsername());
-
-        // 2. 이미 들어와 있는 상대방 화면의 '1'도 실시간 삭제되도록 웹소켓 알림 발송
-        messagingTemplate.convertAndSend("/sub/chat/room/" + roomId, Map.of("type", "READ"));
-
-        model.addAttribute("roomInfo", chatRoom);
-
-        return "chat/chat-room";
+    public String chatRoomDetail(@PathVariable Long roomId, Model model) {
+        // 리액트가 읽을 roomId 정도만 전달하거나, URL에서 리액트가 직접 추출하도록 함
+        model.addAttribute("roomId", roomId);
+        return "chat/chat-room"; // react-chat-root만 있는 빈 타임리프 파일
     }
 }

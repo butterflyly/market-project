@@ -186,7 +186,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
 
         QItem qItem = QItem.item;
 
-        // 2. 검색 타입(searchType)이 무엇이냐에 따라 각각 다른 조건 상자를 리턴!
+        // 2. 검색 타입(searchType)이 무엇이냐에 따라 각각 다른 조건 상자를 리턴
         if ("title".equals(kw_type)) {
             return qItem.title.contains(kw);
         }
@@ -200,7 +200,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
         }
 
         // 3. 만약 타입이 지정되지 않았거나 올바르지 않다면?
-        // 안전장치로 제목 + 내용 통합 검색을 돌리거나 null을 리턴합니다.
+        // 안전장치로 제목 + 내용 통합 검색을 돌리거나 null 을 리턴
         return qItem.title.contains(kw).or(qItem.content.contains(kw));
     }
 
@@ -212,7 +212,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
 
         QItem qItem = QItem.item;
 
-        // .contains()를 쓰면 SQL의 like '%키워드%' 로 자동 치환됩니다.
+        // .contains()를 쓰면 SQL의 like '%키워드%' 로 자동 치환
         return qItem.title.contains(keyword)
                 .or(qItem.content.contains(keyword))
                 .or(qItem.seller.displayNickname.contains(keyword))

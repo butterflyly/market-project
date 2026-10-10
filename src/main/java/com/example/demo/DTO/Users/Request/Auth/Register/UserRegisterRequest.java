@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 
 public record UserRegisterRequest(
+
         @NotBlank(message = "아이디는 필수입니다")
         @Pattern(regexp = "^[a-z0-9A-Z]{6,15}$", message = "아이디 형식이 맞지 않습니다.")
         String username,
@@ -24,8 +25,6 @@ public record UserRegisterRequest(
         @Email(message = "이메일 형식이 아닙니다.")
         String email,
 
-        MultipartFile profileImage,
+        MultipartFile profileImage
 
-        @NotBlank(message = "인증번호를 입력해주세요.")
-        String inputCode
 ) {}
