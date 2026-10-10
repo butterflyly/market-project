@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  my-mysql:
+    image: mysql:8.0
+    container_name: my-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: demo
+      MYSQL_ROOT_PASSWORD: "1q2w3e4r5t!@"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1q2w3e4r5t!@"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - demo-network
+
+  my-redis:
+    image: redis:alpine
+    container_name: my-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - demo-network
+
+  demo-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: demo-app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # prod(my-mysql, my-redis 바라봄)와 secret(비밀키) 프로파일을 함께 활성화
+      SPRING_PROFILES_ACTIVE: prod,secret
+    volumes:
+      - app_uploads:/app/uploads/
+    depends_on:
+      my-mysql:
+        condition: service_healthy
+      my-redis:
+        condition: service_started
+    networks:
+      - demo-network
+
+volumes:
+  mysql_data:
+  app_uploads:
+
+networks:
+  demo-network:
+    driver: bridge
