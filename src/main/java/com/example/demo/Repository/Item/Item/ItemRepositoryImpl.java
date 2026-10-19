@@ -9,6 +9,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.core.types.Order;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import java.util.Optional;
 public class ItemRepositoryImpl implements ItemRepositoryCustom{
 
     private final JPAQueryFactory jpaQueryFactory;
+    private final EntityManager entityManager;
 
 
     @Override
@@ -75,6 +77,9 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
                 .where(
                         qItem.id.eq(id)
                 ).execute();
+
+        entityManager.flush();;
+        entityManager.clear();
     }
 
     @Override

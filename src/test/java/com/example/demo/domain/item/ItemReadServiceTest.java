@@ -239,7 +239,7 @@ public class ItemReadServiceTest {
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent()).hasSize(2);
         assertThat(result.getContent().get(0).itemStatus()).isEqualTo(ItemStatus.SOLD_OUT);
 
         verify(userRepository, times(1)).findByUsernameAndDeletedFalse(buyerUsername);
